@@ -32,16 +32,30 @@ namespace UponNetwork.NetworkSession
             if (!TcpConnection.IsVerified)
                 throw new Exception("Connection is not verified!");
 
+
             try
             {
-              while(!ReceiveCycleCancle.IsCancellationRequested) { 
-                
-              }      
+              while(!ReceiveCycleCancle.IsCancellationRequested) {
+                    var receivedPacket = await TcpConnection.ReceiveDataPacket();
+                    NewPacketReceivedHandler(receivedPacket);
+              }  
             } catch( SocketException exception)
             {
                 // Something went wrong
                 TcpConnection.DropConnection();
             }
+        }
+
+        public void StopReceiveCycle()
+        {
+            ReceiveCycleCancle.Cancel();
+            TcpConnection.CancelCurrentPacketReceive();
+        }
+
+        protected void NewPacketReceivedHandler(ReceivedPacket packet) 
+        {
+            // Just print out for example
+            Console.WriteLine(Encoding.UTF8.GetString(packet?.Data));
         }
     }
 }

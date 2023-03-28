@@ -19,10 +19,12 @@ namespace TcpNetwork
         public Socket Socket { get; set; }
         public ITcpServer Server { get; }
         protected byte[] CurrentReceiveBuffer { get; }
+        protected CancellationTokenSource CancellationCurrentPacketReceive { get; set; }
         public bool IsVerified { get; set; }
 
         public TcpConnection()
         {
+            CancellationCurrentPacketReceive = new CancellationTokenSource();
             Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IsVerified = false;
         }
@@ -162,14 +164,14 @@ namespace TcpNetwork
             Socket.Send(data);
         }
 
-        public virtual ReceivedPacket ReceiveDataPacket()
+        public async virtual Task<ReceivedPacket> ReceiveDataPacket()
         {
             byte[] packetInfo = new byte[PacketInfoBuilder.PacketInfoSize];
 
             // Receive packet info
             int receivedBytes = 0;
             while (receivedBytes < PacketInfoBuilder.PacketInfoSize) {
-                var count = Socket.Receive(packetInfo, receivedBytes, (int)PacketInfoBuilder.PacketInfoSize, SocketFlags.None);
+                var count = await Socket.ReceiveAsync(new ArraySegment<byte>(packetInfo), SocketFlags.None, CancellationCurrentPacketReceive.Token);
                 receivedBytes = receivedBytes + count;
             }
 
@@ -177,13 +179,23 @@ namespace TcpNetwork
             var packetInfoObject = PacketInfoBuilder.DeserializePacketInfo(packetInfo);
 
             // Receive packet data
+            receivedBytes = 0;
             byte[] packetData = new byte[packetInfoObject.PacketSize];
-            Socket.Receive(packetData, (int)packetInfoObject.PacketSize, SocketFlags.None);
-
+            while (receivedBytes < packetInfoObject.PacketSize)
+            {
+                var count = await Socket.ReceiveAsync(new ArraySegment<byte>(packetData), SocketFlags.None, CancellationCurrentPacketReceive.Token);
+                receivedBytes = receivedBytes + count;
+            }
             ReceivedPacket receivedPacket = new ReceivedPacket();
             receivedPacket.Info = packetInfoObject;
             receivedPacket.Data = packetData;
             return receivedPacket;
+        }
+
+        public void CancelCurrentPacketReceive()
+        {
+            CancellationCurrentPacketReceive.Cancel();
+            CancellationCurrentPacketReceive = new CancellationTokenSource();
         }
 
         // Event methods

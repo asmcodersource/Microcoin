@@ -15,6 +15,7 @@ namespace UponNetwork.NetworkServer
 {
     public class NodeServer
     {
+        NodeInfo NodeInfo = new NodeInfo();
         Dictionary<IPEndPoint, ITcpServer> interfaceListeners = new  Dictionary<IPEndPoint, ITcpServer>();
         Dictionary<ITcpConnection, NodeSession> nodeSessions = new Dictionary<ITcpConnection, NodeSession>();
 
@@ -50,13 +51,16 @@ namespace UponNetwork.NetworkServer
         public void SessionCreateHandler(object? sender, ITcpConnection tcpConnection)
         {
             var session = new NodeSession(tcpConnection);
-            session.NodeServer = this;
             nodeSessions.Add(tcpConnection, session);
+            session.NodeServer = this;
+            session.StartReceiveCycle();
         }
 
         public void SessionDropHandler(object? sender, ITcpConnection tcpConnection)
         {
-            nodeSessions[tcpConnection].NodeServer = null;
+            var session = nodeSessions[tcpConnection];
+            session.StopReceiveCycle();
+            session.NodeServer = null;
             nodeSessions.Remove(tcpConnection);
         }
 

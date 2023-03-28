@@ -9,32 +9,25 @@ using UponNetwork.NetworkSession;
 using System.Threading;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-
-ITcpServer tcpServer = new TcpServer();
-tcpServer.PacketInfoBuilder = new SessionPacketInfoBuilder();
-tcpServer.ConnectionBuilder = new TcpConnectionBuilder();
-tcpServer.NewConnectionAccepted += (object sender, ITcpConnection connection) => Console.WriteLine("New connection accepted!");
-tcpServer.NewConnectionRejected += (object sender, ITcpConnection connection) => Console.WriteLine("New connection rejected!");
-tcpServer.SetupListening("127.0.0.1", 1300);
-var listenTaks = tcpServer.StartListeningAsync();
+using UponNetwork.NetworkServer;
 
 
-ITcpConnection tcpClient = new TcpConnection();
-tcpClient.PacketInfoBuilder = new SessionPacketInfoBuilder();
-await tcpClient.ConnectToAsync("127.0.0.1", 1300);
-await tcpClient.VerifyConnection();
+// Create server side of node
+NodeServer nodeServer = new NodeServer();
+await nodeServer.StartSpecificListener("127.0.0.1", 1300);
 
+// Create client side of node
+TcpConnection connection = new TcpConnection();
+connection.PacketInfoBuilder = new SessionPacketInfoBuilder();
+await connection.ConnectToAsync("127.0.0.1", 1300);
+await connection.VerifyConnection();
 
+// Send some type of data to server side
 string msg = "Hello world!";
-var packetInfo = new SessionPacketInfo();
-packetInfo.MessageSender[0] = 0xCC;
-tcpClient.SendDataPacket(Encoding.UTF8.GetBytes(msg), packetInfo);
+SessionPacketInfo packetInfo = new SessionPacketInfo();
+connection.SendDataPacket(Encoding.UTF8.GetBytes(msg), packetInfo);
+connection.SendDataPacket(Encoding.UTF8.GetBytes(msg), packetInfo);
+connection.SendDataPacket(Encoding.UTF8.GetBytes(msg), packetInfo);
 
-foreach(var connection in tcpServer.Connections)
-{
-    await Task.Delay(100);
-    var packet = connection.ReceiveDataPacket();
-    Console.WriteLine(Encoding.UTF8.GetString(packet?.Data));
-}
-
+// Await for press any key
 Console.ReadKey();

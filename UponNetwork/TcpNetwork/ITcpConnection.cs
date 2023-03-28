@@ -34,7 +34,8 @@ namespace TcpNetwork
 
         // Send/Receive methods
         public abstract void SendDataPacket(byte[] data, ITcpPacketInfo tcpPacketInfo = null);
-        public abstract ReceivedPacket ReceiveDataPacket();
+        public abstract Task<ReceivedPacket> ReceiveDataPacket();
+        public abstract void CancelCurrentPacketReceive();
 
 
         // Event methods
