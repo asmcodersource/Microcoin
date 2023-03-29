@@ -17,7 +17,7 @@ namespace TcpNetwork
             return null;
         }
 
-        public virtual ITcpPacketInfo DeserializePacketInfo(byte[] bytes) { 
+        public virtual Task<ITcpPacketInfo> DeserializePacketInfo(Stream stream) { 
             return null; 
         }
     }
@@ -29,13 +29,10 @@ namespace TcpNetwork
             PacketInfoSize = TcpPacketInfo.PacketInfoSize;
         }
 
-        public override ITcpPacketInfo DeserializePacketInfo(byte[] bytes)
+        public async override Task<ITcpPacketInfo> DeserializePacketInfo(Stream stream)
         {
-            MemoryStream memStream = new MemoryStream();
             BinaryFormatter binForm = new BinaryFormatter();
-            memStream.Write(bytes, 0, bytes.Length);
-            memStream.Seek(0, SeekOrigin.Begin);
-            return (TcpPacketInfo)binForm.Deserialize(memStream);
+            return (TcpPacketInfo)binForm.Deserialize(stream);
         }
 
         public override ITcpPacketInfo CreatePacketInfo()

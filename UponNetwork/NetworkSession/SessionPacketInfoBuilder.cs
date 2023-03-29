@@ -16,13 +16,11 @@ namespace UponNetwork.NetworkSession
             PacketInfoSize = SessionPacketInfo.PacketInfoSize;
         }
 
-        public override ITcpPacketInfo DeserializePacketInfo(byte[] bytes)
+        public async override Task<ITcpPacketInfo> DeserializePacketInfo(Stream stream)
         {
-            MemoryStream memStream = new MemoryStream();
+            await Task.Yield();
             BinaryFormatter binForm = new BinaryFormatter();
-            memStream.Write(bytes, 0, bytes.Length);
-            memStream.Seek(0, SeekOrigin.Begin);
-            return (SessionPacketInfo)binForm.Deserialize(memStream);
+            return (SessionPacketInfo)binForm.Deserialize(stream);
         }
 
         public override ITcpPacketInfo CreatePacketInfo()

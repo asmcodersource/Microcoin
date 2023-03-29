@@ -66,7 +66,7 @@ namespace UponNetwork.NetworkServer
             InterfaceListeners.Remove(iPEndPoint);
         }
 
-        public void SessionCreateHandler(object? sender, ITcpConnection tcpConnection)
+        public async void SessionCreateHandler(object? sender, ITcpConnection tcpConnection)
         {
             var session = new NodeSession(tcpConnection, this);
             NodeSessions.Add(tcpConnection, session);

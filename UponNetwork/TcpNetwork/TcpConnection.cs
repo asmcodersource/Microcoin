@@ -166,20 +166,18 @@ namespace TcpNetwork
 
         public async virtual Task<ReceivedPacket> ReceiveDataPacket()
         {
-            byte[] packetInfo = new byte[PacketInfoBuilder.PacketInfoSize];
-
-            // Receive packet info
-            int receivedBytes = 0;
-            while (receivedBytes < PacketInfoBuilder.PacketInfoSize) {
-                var count = await Socket.ReceiveAsync(new ArraySegment<byte>(packetInfo), SocketFlags.None, CancellationCurrentPacketReceive.Token);
-                receivedBytes = receivedBytes + count;
-            }
-
             // Deserialize bytes to object
-            var packetInfoObject = PacketInfoBuilder.DeserializePacketInfo(packetInfo);
+            var stream = new NetworkStream(Socket);
+            var receiveTask = PacketInfoBuilder.DeserializePacketInfo(stream);
+            ITcpPacketInfo packetInfoObject = null;
+
+            await Task.Yield();
+            Task.WaitAny(receiveTask);
+
+            packetInfoObject = receiveTask.Result;
 
             // Receive packet data
-            receivedBytes = 0;
+            int receivedBytes = 0;
             byte[] packetData = new byte[packetInfoObject.PacketSize];
             while (receivedBytes < packetInfoObject.PacketSize)
             {

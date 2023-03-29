@@ -58,6 +58,7 @@ namespace UponNetwork.NetworkServer
             {
                 keysFile = File.CreateText(filePath);
                 keysFile.WriteLine(privateKeyXml);
+                keysFile.WriteLine(publicKeyXml);
                 success = true;
             }
             catch
@@ -79,6 +80,7 @@ namespace UponNetwork.NetworkServer
                 nodeCrypto = new NodeCrypto();
                 keysFile = File.OpenText(filePath);
                 nodeCrypto.privateKeyXml = keysFile.ReadLine();
+                nodeCrypto.publicKeyXml = keysFile.ReadLine();
 
                 nodeCrypto.RSA = new RSACryptoServiceProvider();
                 nodeCrypto.RSA.FromXmlString(nodeCrypto.privateKeyXml);
