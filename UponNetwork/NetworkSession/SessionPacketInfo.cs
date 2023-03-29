@@ -16,7 +16,7 @@ namespace UponNetwork.NetworkSession
         public static long PacketInfoSize { get; protected set; }
         public int NodePathLength = 0;
         public int MaximumNodePathLength = 128;
-        public byte[] MessageSender = new byte[64];
+        public string MessageSenderPublicKey = null;
         public byte[] MessageSign = new byte[64];
 
 

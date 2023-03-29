@@ -15,12 +15,21 @@ namespace UponNetwork.NetworkServer
 {
     public class NodeServer
     {
-        NodeInfo NodeInfo = new NodeInfo();
+        public Node Node { get; set; }
         Dictionary<IPEndPoint, ITcpServer> interfaceListeners = new  Dictionary<IPEndPoint, ITcpServer>();
         Dictionary<ITcpConnection, NodeSession> nodeSessions = new Dictionary<ITcpConnection, NodeSession>();
 
+        public NodeServer(Node node) {
+            this.Node = node;
+        }
+
         public async Task<bool> StartSpecificListener(string addr, int port) {
             IPAddress listenerAddr = IPAddress.Parse(addr);
+            return await StartSpecificListener(listenerAddr, port);
+        }
+
+        public async Task<bool> StartSpecificListener(IPAddress listenerAddr, int port)
+        {
             IPEndPoint iPEndPoint = new IPEndPoint(listenerAddr, port);
             if (interfaceListeners.ContainsKey(iPEndPoint))
                 return false;
@@ -31,7 +40,7 @@ namespace UponNetwork.NetworkServer
             server.NewConnectionAccepted += SessionCreateHandler;
             server.NewConnectionRejected += SessionDropHandler;
             interfaceListeners.Add(iPEndPoint, server);
-            server.SetupListening(addr, port);
+            server.SetupListening(listenerAddr.ToString(), port);
             server.StartListeningAsync();
             return true;
         }
@@ -39,6 +48,11 @@ namespace UponNetwork.NetworkServer
         public void StopSpecificListener(string addr, int port)
         {
             IPAddress listenerAddr = IPAddress.Parse(addr);
+            StopSpecificListener(listenerAddr, port);
+        }
+
+        public void StopSpecificListener(IPAddress listenerAddr, int port)
+        {
             IPEndPoint iPEndPoint = new IPEndPoint(listenerAddr, port);
             if (!interfaceListeners.ContainsKey(iPEndPoint))
                 return;

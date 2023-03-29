@@ -16,10 +16,11 @@ namespace UponNetwork.NetworkSession
         protected CancellationTokenSource ReceiveCycleCancle;
 
 
-        public NodeSession(ITcpConnection tcpConnection)
+        public NodeSession(ITcpConnection tcpConnection, NodeServer server)
         {
             ReceiveCycleCancle = new CancellationTokenSource();
             this.TcpConnection = tcpConnection;
+            this.NodeServer = server;
         }
 
         public override int GetHashCode()
@@ -31,7 +32,6 @@ namespace UponNetwork.NetworkSession
         {
             if (!TcpConnection.IsVerified)
                 throw new Exception("Connection is not verified!");
-
 
             try
             {
