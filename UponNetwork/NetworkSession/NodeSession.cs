@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TcpNetwork;
 using UponNetwork.NetworkServer;
+using System.Security.Cryptography;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace UponNetwork.NetworkSession
 {
@@ -37,7 +40,7 @@ namespace UponNetwork.NetworkSession
             {
               while(!ReceiveCycleCancle.IsCancellationRequested) {
                     var receivedPacket = await TcpConnection.ReceiveDataPacket();
-                    NewPacketReceivedHandler(receivedPacket);
+                    PacketReceiveHandler(receivedPacket);
               }  
             } catch( SocketException exception)
             {
@@ -52,10 +55,45 @@ namespace UponNetwork.NetworkSession
             TcpConnection.CancelCurrentPacketReceive();
         }
 
-        protected void NewPacketReceivedHandler(ReceivedPacket packet) 
+        public void SendMessage(byte[] message, SessionPacketInfo? info = null)
         {
-            // Just print out for example
-            Console.WriteLine(Encoding.UTF8.GetString(packet?.Data));
+            if( info == null)
+            {
+                info = new SessionPacketInfo();
+                info.MessageSign = new byte[0];
+                info.PacketSize = message.Length;
+                info.MessageSenderPublicKey = NodeServer.Node.NodeCrypto.publicKeyXml;
+                info.MessageSign = NodeServer.Node.NodeCrypto.SignMessage(message);
+            }
+
+            RememberPacket(info);
+            TcpConnection.SendDataPacket(message, info);
+        }
+
+        protected void PacketReceiveHandler(ReceivedPacket packet) 
+        {
+            SessionPacketInfo packetInfo = (SessionPacketInfo)packet.Info;
+            if (!RememberPacket(packetInfo))
+                return;
+            var success = NodeCrypto.VerifyMessageSign(packet.Data, packetInfo.MessageSign, packetInfo.MessageSenderPublicKey);
+            if (success == false)
+                return;
+
+            Console.WriteLine(Encoding.UTF8.GetString(packet.Data));
+        }
+
+        // Return false if packets duplicated
+        protected bool RememberPacket(SessionPacketInfo packetInfo)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            MemoryStream ms = new MemoryStream();
+            bf.Serialize(ms, packetInfo);
+            HashAlgorithm algorithm = SHA256.Create();
+            byte[] packetHash = algorithm.ComputeHash(ms.ToArray());
+            if (NodeServer.ReceivedPacketsSet.Contains(packetHash))
+                return false;
+            NodeServer.ReceivedPacketsSet.Add(packetHash);
+            return true;
         }
     }
 }

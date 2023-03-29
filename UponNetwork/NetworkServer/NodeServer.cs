@@ -15,12 +15,16 @@ namespace UponNetwork.NetworkServer
 {
     public class NodeServer
     {
-        public Node Node { get; set; }
-        Dictionary<IPEndPoint, ITcpServer> interfaceListeners = new  Dictionary<IPEndPoint, ITcpServer>();
-        Dictionary<ITcpConnection, NodeSession> nodeSessions = new Dictionary<ITcpConnection, NodeSession>();
+        public Node Node { get; protected set; }
+        public HashSet<byte[]> ReceivedPacketsSet { get; protected set; }
+        public Dictionary<IPEndPoint, ITcpServer> InterfaceListeners { get; protected set; }
+        public Dictionary<ITcpConnection, NodeSession> NodeSessions { get; protected set; }
 
         public NodeServer(Node node) {
             this.Node = node;
+            ReceivedPacketsSet = new HashSet<byte[]>();
+            InterfaceListeners = new Dictionary<IPEndPoint, ITcpServer>();
+            NodeSessions = new Dictionary<ITcpConnection, NodeSession>();
         }
 
         public async Task<bool> StartSpecificListener(string addr, int port) {
@@ -31,7 +35,7 @@ namespace UponNetwork.NetworkServer
         public async Task<bool> StartSpecificListener(IPAddress listenerAddr, int port)
         {
             IPEndPoint iPEndPoint = new IPEndPoint(listenerAddr, port);
-            if (interfaceListeners.ContainsKey(iPEndPoint))
+            if (InterfaceListeners.ContainsKey(iPEndPoint))
                 return false;
 
             ITcpServer server = new TcpServer();
@@ -39,7 +43,7 @@ namespace UponNetwork.NetworkServer
             server.PacketInfoBuilder = new SessionPacketInfoBuilder();
             server.NewConnectionAccepted += SessionCreateHandler;
             server.NewConnectionRejected += SessionDropHandler;
-            interfaceListeners.Add(iPEndPoint, server);
+            InterfaceListeners.Add(iPEndPoint, server);
             server.SetupListening(listenerAddr.ToString(), port);
             server.StartListeningAsync();
             return true;
@@ -54,39 +58,47 @@ namespace UponNetwork.NetworkServer
         public void StopSpecificListener(IPAddress listenerAddr, int port)
         {
             IPEndPoint iPEndPoint = new IPEndPoint(listenerAddr, port);
-            if (!interfaceListeners.ContainsKey(iPEndPoint))
+            if (!InterfaceListeners.ContainsKey(iPEndPoint))
                 return;
 
-            var listener = interfaceListeners[iPEndPoint];
+            var listener = InterfaceListeners[iPEndPoint];
             listener.StopListening();
-            interfaceListeners.Remove(iPEndPoint);
+            InterfaceListeners.Remove(iPEndPoint);
         }
 
         public void SessionCreateHandler(object? sender, ITcpConnection tcpConnection)
         {
-            var session = new NodeSession(tcpConnection);
-            nodeSessions.Add(tcpConnection, session);
+            var session = new NodeSession(tcpConnection, this);
+            NodeSessions.Add(tcpConnection, session);
             session.NodeServer = this;
             session.StartReceiveCycle();
         }
 
         public void SessionDropHandler(object? sender, ITcpConnection tcpConnection)
         {
-            var session = nodeSessions[tcpConnection];
+            var session = NodeSessions[tcpConnection];
             session.StopReceiveCycle();
             session.NodeServer = null;
-            nodeSessions.Remove(tcpConnection);
+            NodeSessions.Remove(tcpConnection);
         }
 
-        public void SendBroadcastMessage(NodeSession session, byte[] message)
+        public void SendBroadcastMessage(NodeSession session, ReceivedPacket packet)
         {
-            foreach( var nodeSession in nodeSessions )
+            foreach( var nodeSession in NodeSessions )
             {
                 var node = nodeSession.Value;
                 if (node == session)
                     continue;
+                node.SendMessage(packet.Data, (SessionPacketInfo)packet.Info);
+            }
+        }
 
-
+        public void SendBroadcastMessage( byte[] message )
+        {
+            foreach (var nodeSession in NodeSessions)
+            {
+                var node = nodeSession.Value;
+                node.SendMessage(message);
             }
         }
     }

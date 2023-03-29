@@ -6,24 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 using TcpNetwork;
 
+using System.Security.Cryptography;
+
 namespace UponNetwork.NetworkSession
 {
 
     [Serializable]
     public class SessionPacketInfo : ITcpPacketInfo
     {
-        public long PacketSize { get; set; }
         public static long PacketInfoSize { get; protected set; }
-        public int NodePathLength = 0;
-        public int MaximumNodePathLength = 128;
-        public string MessageSenderPublicKey = null;
-        public byte[] MessageSign = new byte[64];
+        public long PacketSize { get; set; }
+        public byte[] MessageSign { get; set; }
+        public string MessageSenderPublicKey { get; set; }
 
-
-        public SessionPacketInfo( int MaximumNodePathLength = 128 ) 
-        { 
-            this.NodePathLength = MaximumNodePathLength;
-        }
 
         static SessionPacketInfo()
         {

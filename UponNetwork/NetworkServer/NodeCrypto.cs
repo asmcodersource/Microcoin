@@ -13,14 +13,15 @@ namespace UponNetwork.NetworkServer
     public class NodeCrypto
     {
         public RSACryptoServiceProvider? RSA { get; protected set; }
-        string? publicKeyXml;
-        string? privateKeyXml;
+        public string? publicKeyXml { get; protected set; }
+        public string? privateKeyXml { get; protected set; }
+        object halg = SHA256.Create();
 
         public byte[] SignMessage(byte[] message)
         {
             if (RSA == null)
                 throw new ApplicationException("Use non initialized NodeCrypto");
-            var result = RSA.SignData(message, CryptoConfig.MapNameToOID("SHA512"));
+            var result = RSA.SignData(message, halg);
             return result;
         }
 
@@ -28,7 +29,17 @@ namespace UponNetwork.NetworkServer
         {
             if (RSA == null)
                 throw new ApplicationException("Use non initialized NodeCrypto");
-            var success = RSA.VerifyData(message, CryptoConfig.MapNameToOID("SHA512"), signature);
+            var success = RSA.VerifyData(message, halg, signature);
+            return success;
+        }
+
+        public static bool VerifyMessageSign(byte[] message, byte[] signature, string publicKeyXml)
+        {
+            var RSA = new RSACryptoServiceProvider();
+            RSA.FromXmlString(publicKeyXml);
+            if (RSA == null)
+                throw new ApplicationException("Use non initialized NodeCrypto");
+            var success = RSA.VerifyData(message, SHA256.Create(), signature);
             return success;
         }
 
