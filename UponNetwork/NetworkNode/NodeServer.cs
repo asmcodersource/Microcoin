@@ -11,18 +11,18 @@ using UponNetwork.NetworkSession;
 using static System.Collections.Specialized.BitVector32;
 
 
-namespace UponNetwork.NetworkServer
+namespace UponNetwork.NetworkNode
 {
     public class NodeServer
     {
         public Node Node { get; protected set; }
-        public HashSet<byte[]> ReceivedPacketsSet { get; protected set; }
+        public HashSet<int> ReceivedPacketsSet { get; protected set; }
         public Dictionary<IPEndPoint, ITcpServer> InterfaceListeners { get; protected set; }
         public Dictionary<ITcpConnection, NodeSession> NodeSessions { get; protected set; }
 
         public NodeServer(Node node) {
             this.Node = node;
-            ReceivedPacketsSet = new HashSet<byte[]>();
+            ReceivedPacketsSet = new HashSet<int>();
             InterfaceListeners = new Dictionary<IPEndPoint, ITcpServer>();
             NodeSessions = new Dictionary<ITcpConnection, NodeSession>();
         }
@@ -71,6 +71,8 @@ namespace UponNetwork.NetworkServer
             var session = new NodeSession(tcpConnection, this);
             NodeSessions.Add(tcpConnection, session);
             session.NodeServer = this;
+            session.MessageReceived += (object sender, ReceivedPacket packet) => this.SessionReceivedMessage?.Invoke(this, packet);
+            session.TechnicalMessageReceived += (object sender, ReceivedPacket packet) => this.SessionReceivedTechnicalMessage?.Invoke(this, packet);
             session.StartReceiveCycle();
         }
 
@@ -79,8 +81,11 @@ namespace UponNetwork.NetworkServer
             var session = NodeSessions[tcpConnection];
             session.StopReceiveCycle();
             session.NodeServer = null;
+            session.MessageReceived -= this.SessionReceivedMessage;
+            session.TechnicalMessageReceived -= this.SessionReceivedTechnicalMessage;
             NodeSessions.Remove(tcpConnection);
         }
+
 
         public void SendBroadcastMessage(NodeSession session, ReceivedPacket packet)
         {
@@ -89,17 +94,20 @@ namespace UponNetwork.NetworkServer
                 var node = nodeSession.Value;
                 if (node == session)
                     continue;
-                node.SendMessage(packet.Data, (SessionPacketInfo)packet.Info);
+                node?.SendMessage(packet.Data, (SessionPacketInfo)packet.Info);
             }
         }
 
-        public void SendBroadcastMessage( byte[] message )
+        public void SendBroadcastMessage( byte[] message, bool isTechnical = false )
         {
             foreach (var nodeSession in NodeSessions)
             {
                 var node = nodeSession.Value;
-                node.SendMessage(message);
+                node?.SendMessage(message, null, isTechnical);
             }
         }
+
+        public event EventHandler<ReceivedPacket> SessionReceivedMessage;
+        public event EventHandler<ReceivedPacket> SessionReceivedTechnicalMessage;
     }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TcpNetwork;
 
 using System.Security.Cryptography;
+using System.Net;
 
 namespace UponNetwork.NetworkSession
 {
@@ -18,6 +19,7 @@ namespace UponNetwork.NetworkSession
         public long PacketSize { get; set; }
         public byte[] MessageSign { get; set; }
         public string MessageSenderPublicKey { get; set; }
+        public bool IsTehnicalPacket { get; set; }
 
 
         static SessionPacketInfo()
@@ -29,6 +31,15 @@ namespace UponNetwork.NetworkSession
             bf.Serialize(ms, tcpPacketInfo);
 
             PacketInfoSize = ms.ToArray().Length;
+        }
+
+        public override int GetHashCode()
+        {
+            var builder = new StringBuilder();
+            builder.Append(String.Join(null, MessageSign));
+            builder.AppendLine(PacketSize.ToString());
+            builder.AppendLine(MessageSenderPublicKey);
+            return builder.ToString().GetHashCode();
         }
     }
 }

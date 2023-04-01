@@ -9,32 +9,62 @@ using UponNetwork.NetworkSession;
 using System.Threading;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using UponNetwork.NetworkServer;
+using UponNetwork.NetworkNode;
 
 
-var node1 = CreateNewNode(1300);
-Console.WriteLine("______________________________");
-var node2 = CreateNewNode(1301);
-Console.WriteLine("______________________________");
 
-var success = await node2.ConnectToNode("127.0.0.1", 1300);
-Console.WriteLine("Connect node2 to node1...{0}", success ? "Ok" : "Fail");
-node2.SendMessage(Encoding.UTF8.GetBytes("HELLO WORLD!"));
-
-Console.WriteLine("______________________________");
-
-// Await for press any key
-Console.ReadKey();
-
-
-static Node CreateNewNode(int port)
+class Program
 {
-    Node node = new Node();
-    Console.Write("Initialize node keys...");
-    node.PrepareNodeCrypto();
-    Console.WriteLine("Ok");
-    Console.Write("Starting node server...");
-    node.PrepareNodeServer(port);
-    Console.WriteLine("Ok");
-    return node;
+    static Node? node;
+
+    static async Task Main(string[] args)
+    {
+        AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
+        node = CreateNewNode(0, "user");
+        
+        node.NodeReceivedTechnicalMessage += AnyMessageHandler;
+        node.NodeReceivedMessage += AnyMessageHandler;
+        node.NodeDiscovery.SendDiscoveryRequest();
+
+        while (true)
+        {
+            Console.Write("Connect to ip=");
+            string ip = Console.ReadLine();
+            Console.Write("Connect to port=");
+            int port = Convert.ToInt32(Console.ReadLine());
+            await node.ConnectToNode(ip, port);
+            node.NodeDiscovery.SendDiscoveryRequest();
+        }
+    }
+
+
+    static void OnProcessExit(object sender, EventArgs e)
+    {
+        Console.WriteLine("Store known peers to file");
+        node.SavePeersToFile("user.peers");
+    }
+
+    static void AnyMessageHandler(object sender, ReceivedPacket packet)
+    {
+        SessionPacketInfo sessionPacketInfo = (SessionPacketInfo)packet.Info;
+        Console.WriteLine($"\nNew message received from peer network");
+        Console.WriteLine($"Peer: {sessionPacketInfo.MessageSenderPublicKey}");
+        Console.WriteLine($"Message size: {sessionPacketInfo.PacketSize}");
+        Console.WriteLine($"Technical: {sessionPacketInfo.IsTehnicalPacket.ToString()}");
+        Console.WriteLine($"Date: {DateTime.UtcNow.ToString()}");
+        Console.WriteLine(Encoding.UTF8.GetString(packet.Data));
+    }
+
+    static Node CreateNewNode(int port, string keyFileName)
+    {
+        Node node = new Node();
+        Console.Write("Initialize node keys...");
+        node.PrepareNodeCrypto(keyFileName + ".keys");
+        Console.WriteLine("Ok");
+        Console.Write("Starting node server...");
+        node.PrepareNodeServer(port);
+        node.LoadPeersFromFile(keyFileName + ".peers");
+        Console.WriteLine("Ok");
+        return node;
+    }
 }

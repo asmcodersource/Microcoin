@@ -6,9 +6,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TcpNetwork;
-using UponNetwork.NetworkServer;
+using UponNetwork.NetworkNode;
 using System.Security.Cryptography;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 
 namespace UponNetwork.NetworkSession
 {
@@ -30,6 +33,7 @@ namespace UponNetwork.NetworkSession
         {
             return TcpConnection.GetHashCode();
         }
+
 
         public async Task StartReceiveCycle()
         {
@@ -55,7 +59,7 @@ namespace UponNetwork.NetworkSession
             TcpConnection.CancelCurrentPacketReceive();
         }
 
-        public void SendMessage(byte[] message, SessionPacketInfo? info = null)
+        public void SendMessage(byte[] message, SessionPacketInfo? info = null, bool isTechnical = false)
         {
             if( info == null)
             {
@@ -66,6 +70,7 @@ namespace UponNetwork.NetworkSession
                 info.MessageSign = NodeServer.Node.NodeCrypto.SignMessage(message);
             }
 
+            info.IsTehnicalPacket = isTechnical;
             RememberPacket(info);
             TcpConnection.SendDataPacket(message, info);
         }
@@ -78,22 +83,27 @@ namespace UponNetwork.NetworkSession
             var success = NodeCrypto.VerifyMessageSign(packet.Data, packetInfo.MessageSign, packetInfo.MessageSenderPublicKey);
             if (success == false)
                 return;
+            if (packetInfo.MessageSenderPublicKey == NodeServer.Node.NodeCrypto?.publicKeyXml)
+                return;
 
-            Console.WriteLine(Encoding.UTF8.GetString(packet.Data));
+            NodeServer.SendBroadcastMessage(this, packet);
+            if (packetInfo.IsTehnicalPacket)
+                TechnicalMessageReceived.Invoke(this, packet);
+            else
+                MessageReceived.Invoke(this, packet);
         }
 
         // Return false if packets duplicated
         protected bool RememberPacket(SessionPacketInfo packetInfo)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, packetInfo);
-            HashAlgorithm algorithm = SHA256.Create();
-            byte[] packetHash = algorithm.ComputeHash(ms.ToArray());
+            int packetHash = packetInfo.GetHashCode();
             if (NodeServer.ReceivedPacketsSet.Contains(packetHash))
                 return false;
             NodeServer.ReceivedPacketsSet.Add(packetHash);
             return true;
         }
+
+        public event EventHandler<ReceivedPacket> MessageReceived;
+        public event EventHandler<ReceivedPacket> TechnicalMessageReceived;
     }
 }

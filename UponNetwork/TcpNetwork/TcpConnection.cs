@@ -67,7 +67,6 @@ namespace TcpNetwork
 
             if (!Socket.Connected)
             {
-                Socket.CancelConnectAsync(null);
                 Socket.Close();
                 return false;
             }

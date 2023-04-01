@@ -7,7 +7,7 @@ using UponNetwork.NetworkSession;
 using System.IO;
 using System.Text;
 
-namespace UponNetwork.NetworkServer
+namespace UponNetwork.NetworkNode
 {
     [Serializable]
     public class NodeCrypto

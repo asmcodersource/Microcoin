@@ -18,6 +18,7 @@ namespace TcpNetwork
     public interface ITcpPacketInfo
     {
         public long PacketSize { get; set; }
+        public int GetHashCode();
     }
 
 
