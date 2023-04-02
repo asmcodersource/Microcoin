@@ -59,11 +59,12 @@ namespace UponNetwork.NetworkSession
             TcpConnection.CancelCurrentPacketReceive();
         }
 
-        public void SendMessage(byte[] message, SessionPacketInfo? info = null, bool isTechnical = false)
+        public void SendMessage(byte[] message, SessionPacketInfo? info = null, bool isTechnical = false, int peersToPass = -1)
         {
-            if( info == null)
+            if (info == null)
             {
                 info = new SessionPacketInfo();
+                info.PeersToPass = -1;
                 info.MessageSign = new byte[0];
                 info.PacketSize = message.Length;
                 info.MessageSenderPublicKey = NodeServer.Node.NodeCrypto.publicKeyXml;
@@ -71,6 +72,8 @@ namespace UponNetwork.NetworkSession
             }
 
             info.IsTehnicalPacket = isTechnical;
+            info.PeersToPass = peersToPass;
+            
             RememberPacket(info);
             TcpConnection.SendDataPacket(message, info);
         }
@@ -78,6 +81,8 @@ namespace UponNetwork.NetworkSession
         protected void PacketReceiveHandler(ReceivedPacket packet) 
         {
             SessionPacketInfo packetInfo = (SessionPacketInfo)packet.Info;
+            if (packetInfo.PeersToPass != -1)
+                packetInfo.PeersToPass -= 1;
             if (!RememberPacket(packetInfo))
                 return;
             var success = NodeCrypto.VerifyMessageSign(packet.Data, packetInfo.MessageSign, packetInfo.MessageSenderPublicKey);
@@ -86,7 +91,8 @@ namespace UponNetwork.NetworkSession
             if (packetInfo.MessageSenderPublicKey == NodeServer.Node.NodeCrypto?.publicKeyXml)
                 return;
 
-            NodeServer.SendBroadcastMessage(this, packet);
+            if( packetInfo.PeersToPass != 0)  
+                NodeServer.SendBroadcastMessage(this, packet);
             if (packetInfo.IsTehnicalPacket)
                 TechnicalMessageReceived.Invoke(this, packet);
             else

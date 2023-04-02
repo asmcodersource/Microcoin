@@ -74,6 +74,8 @@ namespace UponNetwork.NetworkNode
             session.MessageReceived += (object sender, ReceivedPacket packet) => this.SessionReceivedMessage?.Invoke(this, packet);
             session.TechnicalMessageReceived += (object sender, ReceivedPacket packet) => this.SessionReceivedTechnicalMessage?.Invoke(this, packet);
             session.StartReceiveCycle();
+
+            Node.NodeDiscovery.SendDiscoveryRequest(session);
         }
 
         public void SessionDropHandler(object? sender, ITcpConnection tcpConnection)
@@ -94,16 +96,16 @@ namespace UponNetwork.NetworkNode
                 var node = nodeSession.Value;
                 if (node == session)
                     continue;
-                node?.SendMessage(packet.Data, (SessionPacketInfo)packet.Info);
+                node?.SendMessage(packet.Data, (SessionPacketInfo)packet.Info, ((SessionPacketInfo)packet.Info).IsTehnicalPacket);
             }
         }
 
-        public void SendBroadcastMessage( byte[] message, bool isTechnical = false )
+        public void SendBroadcastMessage( byte[] message, bool isTechnical = false, int peersToPass = -1)
         {
             foreach (var nodeSession in NodeSessions)
             {
                 var node = nodeSession.Value;
-                node?.SendMessage(message, null, isTechnical);
+                node?.SendMessage(message, null, isTechnical, peersToPass);
             }
         }
 

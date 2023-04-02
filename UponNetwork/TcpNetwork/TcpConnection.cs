@@ -186,6 +186,7 @@ namespace TcpNetwork
             ReceivedPacket receivedPacket = new ReceivedPacket();
             receivedPacket.Info = packetInfoObject;
             receivedPacket.Data = packetData;
+            receivedPacket.Sender = Socket.RemoteEndPoint;
             return receivedPacket;
         }
 

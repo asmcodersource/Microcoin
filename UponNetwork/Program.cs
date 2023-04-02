@@ -19,12 +19,12 @@ class Program
 
     static async Task Main(string[] args)
     {
-        AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
-        node = CreateNewNode(0, "user");
+        node = CreateNewNode(1300, "user");
         
         node.NodeReceivedTechnicalMessage += AnyMessageHandler;
         node.NodeReceivedMessage += AnyMessageHandler;
-        node.NodeDiscovery.SendDiscoveryRequest();
+        await node.CreateSessionsByPeersStorage();
+        node.NodeDiscovery.StartBeacon();
 
         while (true)
         {
@@ -37,12 +37,6 @@ class Program
         }
     }
 
-
-    static void OnProcessExit(object sender, EventArgs e)
-    {
-        Console.WriteLine("Store known peers to file");
-        node.SavePeersToFile("user.peers");
-    }
 
     static void AnyMessageHandler(object sender, ReceivedPacket packet)
     {

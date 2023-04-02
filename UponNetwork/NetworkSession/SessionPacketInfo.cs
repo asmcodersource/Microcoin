@@ -20,6 +20,7 @@ namespace UponNetwork.NetworkSession
         public byte[] MessageSign { get; set; }
         public string MessageSenderPublicKey { get; set; }
         public bool IsTehnicalPacket { get; set; }
+        public int PeersToPass { get; set; }
 
 
         static SessionPacketInfo()
@@ -32,6 +33,7 @@ namespace UponNetwork.NetworkSession
 
             PacketInfoSize = ms.ToArray().Length;
         }
+
 
         public override int GetHashCode()
         {

@@ -20,9 +20,9 @@ namespace UponNetwork.NetworkNode
         public NodeServer? NodeServer { get; protected set; }
         public NodeDiscovery? NodeDiscovery { get; protected set; }
 
-        public void SendMessage(byte[] message, bool isTechnical = false)
+        public void SendMessage(byte[] message, bool isTechnical = false, int peersToPass = -1)
         {
-            NodeServer?.SendBroadcastMessage(message, isTechnical);
+            NodeServer?.SendBroadcastMessage(message, isTechnical, peersToPass);
         }
 
         public async Task<bool> ConnectToNode(string addr, int port)
@@ -69,6 +69,7 @@ namespace UponNetwork.NetworkNode
             NodeServer.SessionReceivedMessage += (object sender, ReceivedPacket packet) => this.NodeReceivedMessage?.Invoke(this, packet);
             NodeServer.SessionReceivedTechnicalMessage += (object sender, ReceivedPacket packet) => this.NodeReceivedTechnicalMessage?.Invoke(this, packet);
             var task = NodeServer.StartSpecificListener(IPAddress.Any, port);
+            
             Task.WaitAny(task);
             if (task.Result == false)
                 throw new ApplicationException("Something went wrong with node server initialize");

@@ -37,6 +37,7 @@ namespace UponNetwork.NetworkNode
 
     public class NodePeersStorage
     {
+        protected string peersStorageFileName;
         public DateTime LastUpdateTime { get; protected set; }
         public HashSet<Peer> Peers { get; protected set; }
 
@@ -48,6 +49,7 @@ namespace UponNetwork.NetworkNode
 
         public void SavePeers(string filePath)
         {
+            LastUpdateTime = DateTime.UtcNow;
             BinaryFormatter formatter = new BinaryFormatter();
             using (FileStream fs = new FileStream(filePath, FileMode.Create))
             {
@@ -60,6 +62,7 @@ namespace UponNetwork.NetworkNode
         {
             if (!File.Exists(filePath))
                 throw new ApplicationException($"Cant load peers, file {filePath} not exists");
+            peersStorageFileName = filePath;
 
             BinaryFormatter formatter = new BinaryFormatter();
             using (FileStream fs = new FileStream(filePath, FileMode.Open))
@@ -75,6 +78,7 @@ namespace UponNetwork.NetworkNode
             if (!Peers.TryGetValue(peer, out storedPeer))
             {
                 Peers.Add(peer);
+                SavePeers(peersStorageFileName);
                 return;
             }
 

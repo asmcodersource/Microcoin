@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Net;
 
 namespace TcpNetwork
 {
     public record ReceivedPacket
     {
+        public EndPoint Sender { get; set; }
         public ITcpPacketInfo? Info { get; set; }
         public byte[]? Data { get; set; }
     }
