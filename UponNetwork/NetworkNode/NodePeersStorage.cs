@@ -76,8 +76,8 @@ namespace UponNetwork.NetworkNode
         {
             if (!File.Exists(filePath))
                 throw new ApplicationException($"Cant load peers, file {filePath} not exists");
-            peersStorageFileName = filePath;
 
+            this.peersStorageFileName = filePath;
             BinaryFormatter formatter = new BinaryFormatter();
             using (FileStream fs = new FileStream(filePath, FileMode.Open))
             {

@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UponNetwork
+namespace Microcoin.Settings
 {
     [Serializable]
-    public class Settings
+    public class BlockchainSettings
     {
-        string ListeningAdress = "0.0.0.0";
-        int ListeningPort = 1300;
-        
     }
 }

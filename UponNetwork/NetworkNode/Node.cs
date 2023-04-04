@@ -33,10 +33,10 @@ namespace UponNetwork.NetworkNode
             TcpConnection connection = new TcpConnection();
             connection.PacketInfoBuilder = new SessionPacketInfoBuilder();
             var success = await connection.ConnectToAsync(addr, port);
-            if (!success)
+            if (success == false)
                 return false;
             success = await connection.VerifyConnection();
-            if(!success)
+            if(success == false)
                 return false;
 
             NodeServer.SessionCreateHandler(this, connection);

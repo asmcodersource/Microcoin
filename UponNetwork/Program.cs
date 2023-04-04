@@ -10,8 +10,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using UponNetwork.NetworkNode;
-
-
+using Microcoin.Settings;
 
 class Program
 {
@@ -20,8 +19,8 @@ class Program
 
     static async Task Main(string[] args)
     {
-        Console.WriteLine("Testing deploy config!?");
-        node = CreateNewNode(1300, "user");
+        var settings = LoadSettingsFromFile("Settings.xml");
+        node = CreateNewNode(settings.PeerNetworkSettings.ListeningPort, settings.PeerNetworkSettings.PeerKeysFileName);
         node.NodeReceivedTechnicalMessage += AnyMessageHandler;
         node.NodeReceivedMessage += AnyMessageHandler;
         await node.CreateSessionsByPeersStorage();
@@ -29,6 +28,7 @@ class Program
         node.NodeDiscovery.StartBeacon();
 
         await node.ConnectToNode("192.168.0.101", 1300);
+        await node.NodeDiscovery.SendDiscoveryRequest();
 
         await Task.Delay(-1);
     }
@@ -46,6 +46,24 @@ class Program
             Console.WriteLine($"Date: {DateTime.UtcNow.ToString()}");
             Console.WriteLine(Encoding.UTF8.GetString(packet.Data));
         }
+    }
+
+
+    public static Settings LoadSettingsFromFile(string filePath)
+    {
+        Settings settings;
+        var dir = System.AppDomain.CurrentDomain.BaseDirectory;
+        string fullFilePath = Path.Combine(dir, filePath);
+        if(!File.Exists(fullFilePath))
+        {
+            settings = new Settings();
+            settings.SaveSettingsToFile(fullFilePath);
+            return settings;
+        } else
+        {
+            settings = Settings.LoadSettingsFromFile(fullFilePath);
+            return settings;
+        }  
     }
 
     static Node CreateNewNode(int port, string keyFileName)
