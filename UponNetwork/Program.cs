@@ -20,6 +20,7 @@ class Program
 
     static async Task Main(string[] args)
     {
+        Console.WriteLine("Testing deploy config!");
         node = CreateNewNode(1300, "user");
         node.NodeReceivedTechnicalMessage += AnyMessageHandler;
         node.NodeReceivedMessage += AnyMessageHandler;
