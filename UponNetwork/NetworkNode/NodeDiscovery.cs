@@ -18,20 +18,90 @@ namespace UponNetwork.NetworkNode
     [Serializable]
     public class DiscoveryMessage
     {
+        public DateTime requestTime;
         public string Address { get; set; }
         public int Port { get; set; }
-        string? AdditionalMessage { get; set; }
+        public string? AdditionalMessage { get; set; }
+
+        public DiscoveryMessage() {
+            this.requestTime = DateTime.UtcNow;
+        }
+
+        public DiscoveryMessage(DateTime requestTime, string address, int port, string? additionalMessage)
+        {
+            this.requestTime = requestTime;
+            Address = address;
+            Port = port;
+            AdditionalMessage = additionalMessage;
+        }
+
+        public DiscoveryMessage(string address, int port, string? additionalMessage)
+        {
+            this.requestTime = DateTime.UtcNow;
+            Address = address;
+            Port = port;
+            AdditionalMessage = additionalMessage;
+        }
+    }
+
+    internal class NodeDiscoveryIntervalPID
+    {
+        public double Interval { get; protected set; }
+        public int TargetTrafficCount { get; set; }
+        protected int TrafficCount { get; set; }
+        protected System.Timers.Timer PIDTimer { get; set; }
+
+        public NodeDiscoveryIntervalPID( int targetTrafficPerMinute )
+        {
+            this.Interval = 1000;
+            this.TargetTrafficCount = targetTrafficPerMinute;
+        }
+
+        public void Start()
+        {
+            PIDTimer = new System.Timers.Timer();
+            PIDTimer.Interval = 10 * 1000;
+            PIDTimer.Elapsed += RecalculateInterval;
+            PIDTimer.AutoReset = true;
+            PIDTimer.Enabled = true;
+            PIDTimer.Start();
+        }
+
+        public void Stop()
+        {
+            PIDTimer.Stop();
+        }
+
+        public void TrafficIncreaseCount()
+        {
+            TrafficCount++;
+        }
+
+        protected void RecalculateInterval(Object source, System.Timers.ElapsedEventArgs e)
+        {
+            double difference = (TargetTrafficCount - (TrafficCount * 6));
+            Interval -= (difference * 0.25);
+            TrafficCount = 0;
+            if (Interval < 400)
+                Interval = 400;
+            InvervalChanged?.Invoke(this, (int)Interval);
+        }
+
+        public event EventHandler<int> InvervalChanged;
     }
 
     public class NodeDiscovery
     {
+        NodeDiscoveryIntervalPID nodeDiscoveryIntervalPID;
         Node node;
         DiscoveryMessage discoveryRequest;
         protected System.Timers.Timer beaconTimer;
         string requestMessage;
+        string externalIP;
 
         public NodeDiscovery(Node node)
         {
+            nodeDiscoveryIntervalPID = new NodeDiscoveryIntervalPID(60);
             this.node = node;
             node.NodeServer.SessionReceivedTechnicalMessage += TechnicalMessageHandler;
             ComputeRequestString();
@@ -39,15 +109,16 @@ namespace UponNetwork.NetworkNode
 
         public async Task ComputeRequestString()
         {
-            string ip = await GetExternalIPAddress();
-            if (ip == null)
+            if( externalIP == null )
+                externalIP = await GetExternalIPAddress();
+            if (externalIP == null)
                 throw new ApplicationException("Cannot access site for IP define");
 
-            discoveryRequest = new DiscoveryMessage();
-            discoveryRequest.Address = ip;
-            discoveryRequest.Port = node.ListeningPort;
 
-            DiscoveryMessage discoveryMessage = discoveryRequest;
+            DiscoveryMessage discoveryMessage = new DiscoveryMessage();
+            discoveryMessage.Address = externalIP;
+            discoveryMessage.Port = node.ListeningPort;
+            discoveryMessage.AdditionalMessage = "Interval time = " + nodeDiscoveryIntervalPID.Interval.ToString();
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(DiscoveryMessage));
             using (StringWriter textWriter = new StringWriter())
             {
@@ -56,17 +127,15 @@ namespace UponNetwork.NetworkNode
             }
         }
 
-        public async void SendDiscoveryRequest()
+        public async Task SendDiscoveryRequest()
         {
-            if (requestMessage == null)
-                await ComputeRequestString();
+            await ComputeRequestString();
             node.SendMessage(Encoding.UTF8.GetBytes(requestMessage), true);
         }
 
         public async Task SendDiscoveryRequest(NodeSession session)
         {
-            if (requestMessage == null)
-                await ComputeRequestString();
+            await ComputeRequestString();
             session.SendMessage(Encoding.UTF8.GetBytes(requestMessage), null, true, 1);
         }
 
@@ -88,6 +157,9 @@ namespace UponNetwork.NetworkNode
                 return;
             }
 
+            nodeDiscoveryIntervalPID.TrafficIncreaseCount();
+            if (node.NodePeersStorage.Peers.Contains(peer)) 
+                return;
 
             TcpConnection connection = new TcpConnection();
             connection.PacketInfoBuilder = new SessionPacketInfoBuilder();
@@ -108,11 +180,14 @@ namespace UponNetwork.NetworkNode
         public void StartBeacon()
         {
             beaconTimer = new System.Timers.Timer();
-            beaconTimer.Interval = 5 * 60 * 1000;
+            beaconTimer.Interval = 1*1000;
             beaconTimer.Elapsed += (Object source, System.Timers.ElapsedEventArgs e) => SendDiscoveryRequest();
             beaconTimer.AutoReset = true;
             beaconTimer.Enabled = true;
             beaconTimer.Start();
+
+            nodeDiscoveryIntervalPID.InvervalChanged += (object sender, int newInterval) => beaconTimer.Interval = newInterval;
+            nodeDiscoveryIntervalPID.Start();
         }
 
         public void StopBeacon()

@@ -33,7 +33,7 @@ namespace TcpNetwork
 
 
         // Send/Receive methods
-        public abstract void SendDataPacket(byte[] data, ITcpPacketInfo tcpPacketInfo = null);
+        public abstract Task SendDataPacket(byte[] data, ITcpPacketInfo tcpPacketInfo = null);
         public abstract Task<ReceivedPacket> ReceiveDataPacket();
         public abstract void CancelCurrentPacketReceive();
 

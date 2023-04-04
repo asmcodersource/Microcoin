@@ -50,6 +50,7 @@ namespace UponNetwork.NetworkSession
             {
                 // Something went wrong
                 TcpConnection.DropConnection();
+                Console.WriteLine("Some connection broken at receiving");
             }
         }
 
@@ -73,9 +74,16 @@ namespace UponNetwork.NetworkSession
 
             info.IsTehnicalPacket = isTechnical;
             info.PeersToPass = peersToPass;
-            
-            RememberPacket(info);
-            TcpConnection.SendDataPacket(message, info);
+            try
+            {
+                TcpConnection.SendDataPacket(message, info);
+                RememberPacket(info);
+            } catch ( SocketException exception )
+            {
+                // Something went wrong
+                TcpConnection.DropConnection();
+                Console.WriteLine("Some connection broken at sending");
+            }
         }
 
         protected void PacketReceiveHandler(ReceivedPacket packet) 

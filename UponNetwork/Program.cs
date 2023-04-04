@@ -16,37 +16,35 @@ using UponNetwork.NetworkNode;
 class Program
 {
     static Node? node;
+    static object locked = new object();
 
     static async Task Main(string[] args)
     {
         node = CreateNewNode(1300, "user");
-        
         node.NodeReceivedTechnicalMessage += AnyMessageHandler;
         node.NodeReceivedMessage += AnyMessageHandler;
         await node.CreateSessionsByPeersStorage();
+        await node.NodeDiscovery.SendDiscoveryRequest();
         node.NodeDiscovery.StartBeacon();
 
-        while (true)
-        {
-            Console.Write("Connect to ip=");
-            string ip = Console.ReadLine();
-            Console.Write("Connect to port=");
-            int port = Convert.ToInt32(Console.ReadLine());
-            await node.ConnectToNode(ip, port);
-            node.NodeDiscovery.SendDiscoveryRequest();
-        }
+        await node.ConnectToNode("192.168.0.101", 1300);
+
+        await Task.Delay(-1);
     }
 
 
     static void AnyMessageHandler(object sender, ReceivedPacket packet)
     {
-        SessionPacketInfo sessionPacketInfo = (SessionPacketInfo)packet.Info;
-        Console.WriteLine($"\nNew message received from peer network");
-        Console.WriteLine($"Peer: {sessionPacketInfo.MessageSenderPublicKey}");
-        Console.WriteLine($"Message size: {sessionPacketInfo.PacketSize}");
-        Console.WriteLine($"Technical: {sessionPacketInfo.IsTehnicalPacket.ToString()}");
-        Console.WriteLine($"Date: {DateTime.UtcNow.ToString()}");
-        Console.WriteLine(Encoding.UTF8.GetString(packet.Data));
+        lock (locked)
+        {
+            SessionPacketInfo sessionPacketInfo = (SessionPacketInfo)packet.Info;
+            Console.WriteLine($"\nNew message received from peer network");
+            Console.WriteLine($"Peer: {sessionPacketInfo.MessageSenderPublicKey}");
+            Console.WriteLine($"Message size: {sessionPacketInfo.PacketSize}");
+            Console.WriteLine($"Technical: {sessionPacketInfo.IsTehnicalPacket.ToString()}");
+            Console.WriteLine($"Date: {DateTime.UtcNow.ToString()}");
+            Console.WriteLine(Encoding.UTF8.GetString(packet.Data));
+        }
     }
 
     static Node CreateNewNode(int port, string keyFileName)

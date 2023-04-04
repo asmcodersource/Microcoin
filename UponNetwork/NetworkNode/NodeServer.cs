@@ -96,7 +96,8 @@ namespace UponNetwork.NetworkNode
                 var node = nodeSession.Value;
                 if (node == session)
                     continue;
-                node?.SendMessage(packet.Data, (SessionPacketInfo)packet.Info, ((SessionPacketInfo)packet.Info).IsTehnicalPacket);
+                if (node.TcpConnection.Socket.Connected)
+                    node?.SendMessage(packet.Data, (SessionPacketInfo)packet.Info, ((SessionPacketInfo)packet.Info).IsTehnicalPacket);
             }
         }
 
@@ -105,7 +106,8 @@ namespace UponNetwork.NetworkNode
             foreach (var nodeSession in NodeSessions)
             {
                 var node = nodeSession.Value;
-                node?.SendMessage(message, null, isTechnical, peersToPass);
+                if( node.TcpConnection.Socket.Connected )
+                    node?.SendMessage(message, null, isTechnical, peersToPass);
             }
         }
 

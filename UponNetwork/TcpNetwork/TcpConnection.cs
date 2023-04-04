@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using TcpNetwork;
+using System.Threading;
 
 namespace TcpNetwork
 {
@@ -21,6 +22,8 @@ namespace TcpNetwork
         protected byte[] CurrentReceiveBuffer { get; }
         protected CancellationTokenSource CancellationCurrentPacketReceive { get; set; }
         public bool IsVerified { get; set; }
+        protected SemaphoreSlim readSemaphore = new SemaphoreSlim(1);
+        protected SemaphoreSlim writeSemaphore = new SemaphoreSlim(1);
 
         public TcpConnection()
         {
@@ -149,45 +152,57 @@ namespace TcpNetwork
         }
 
         // Send/Receive methods
-        public virtual void SendDataPacket(byte[] data, ITcpPacketInfo tcpPacketInfo = null)
+        public virtual async Task SendDataPacket(byte[] data, ITcpPacketInfo tcpPacketInfo = null)
         {
-            if( tcpPacketInfo == null )
-                tcpPacketInfo = PacketInfoBuilder.CreatePacketInfo();
-            tcpPacketInfo.PacketSize = data.Length;
+            await writeSemaphore.WaitAsync();
+            try
+            {
+                if (tcpPacketInfo == null)
+                    tcpPacketInfo = PacketInfoBuilder.CreatePacketInfo();
+                tcpPacketInfo.PacketSize = data.Length;
 
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, tcpPacketInfo);
+                BinaryFormatter bf = new BinaryFormatter();
+                MemoryStream ms = new MemoryStream();
+                bf.Serialize(ms, tcpPacketInfo);
 
-            Socket.Send(ms.ToArray());
-            Socket.Send(data);
+                Socket.Send(ms.ToArray());
+                Socket.Send(data);
+            }
+            finally
+            {
+                writeSemaphore.Release();
+            }
         }
 
         public async virtual Task<ReceivedPacket> ReceiveDataPacket()
         {
-            // Deserialize bytes to object
-            var stream = new NetworkStream(Socket);
-            var receiveTask = PacketInfoBuilder.DeserializePacketInfo(stream);
-            ITcpPacketInfo packetInfoObject = null;
-
-            await Task.Yield();
-            Task.WaitAny(receiveTask);
-
-            packetInfoObject = receiveTask.Result;
-
-            // Receive packet data
-            int receivedBytes = 0;
-            byte[] packetData = new byte[packetInfoObject.PacketSize];
-            while (receivedBytes < packetInfoObject.PacketSize)
+            await readSemaphore.WaitAsync();
+            try
             {
-                var count = await Socket.ReceiveAsync(new ArraySegment<byte>(packetData), SocketFlags.None, CancellationCurrentPacketReceive.Token);
-                receivedBytes = receivedBytes + count;
+                ReceivedPacket receivedPacket = new ReceivedPacket();
+
+                // Deserialize bytes to object
+                var stream = new NetworkStream(Socket);
+                ITcpPacketInfo packetInfoObject = await PacketInfoBuilder.DeserializePacketInfo(stream);
+
+
+                // Receive packet data
+                int receivedBytes = 0;
+                byte[] packetData = new byte[packetInfoObject.PacketSize];
+                while (receivedBytes < packetInfoObject.PacketSize)
+                {
+                    var count = await Socket.ReceiveAsync(new ArraySegment<byte>(packetData), SocketFlags.None, CancellationCurrentPacketReceive.Token);
+                    receivedBytes = receivedBytes + count;
+                }
+                receivedPacket.Info = packetInfoObject;
+                receivedPacket.Data = packetData;
+                receivedPacket.Sender = Socket.RemoteEndPoint;
+
+                return receivedPacket;
+            } finally
+            {
+                readSemaphore.Release();
             }
-            ReceivedPacket receivedPacket = new ReceivedPacket();
-            receivedPacket.Info = packetInfoObject;
-            receivedPacket.Data = packetData;
-            receivedPacket.Sender = Socket.RemoteEndPoint;
-            return receivedPacket;
         }
 
         public void CancelCurrentPacketReceive()

@@ -35,6 +35,20 @@ namespace UponNetwork.NetworkNode
         }
     }
 
+    [Serializable]
+    public class PeerComparer : IEqualityComparer<Peer>
+    {
+        bool IEqualityComparer<Peer>.Equals(Peer? x, Peer? y)
+        {
+            return (x.Address == y.Address && x.Port == y.Port);
+        }
+
+        int IEqualityComparer<Peer>.GetHashCode(Peer obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
+
     public class NodePeersStorage
     {
         protected string peersStorageFileName;
@@ -44,7 +58,7 @@ namespace UponNetwork.NetworkNode
         public NodePeersStorage()
         {
             LastUpdateTime = DateTime.UtcNow;
-            Peers = new HashSet<Peer>();
+            Peers = new HashSet<Peer>(new PeerComparer());
         }
 
         public void SavePeers(string filePath)
@@ -68,7 +82,7 @@ namespace UponNetwork.NetworkNode
             using (FileStream fs = new FileStream(filePath, FileMode.Open))
             {
                 LastUpdateTime = (DateTime)formatter.Deserialize(fs);
-                Peers = (HashSet<Peer>)formatter.Deserialize(fs);
+                Peers = new HashSet<Peer>((HashSet<Peer>)formatter.Deserialize(fs), new PeerComparer());
             }
         }
 
@@ -87,6 +101,7 @@ namespace UponNetwork.NetworkNode
                 return;
             Peers.Remove(storedPeer);
             Peers.Add(peerToStore);
+            SavePeers(peersStorageFileName);
         }
 
         public void RemovePeer(Peer peer)

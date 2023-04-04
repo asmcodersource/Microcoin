@@ -40,6 +40,7 @@ namespace UponNetwork.NetworkNode
                 return false;
 
             NodeServer.SessionCreateHandler(this, connection);
+            NodePeersStorage.AddPeer(new Peer(addr, port));
             return true;
         }
 
@@ -98,8 +99,9 @@ namespace UponNetwork.NetworkNode
 
         public async Task CreateSessionsByPeersStorage()
         {
-            foreach( var peer in  NodePeersStorage.Peers)
-                ConnectToNode(peer.Address, peer.Port);
+            var peers = NodePeersStorage.Peers.ToArray();
+            foreach( var peer in peers)
+                await ConnectToNode(peer.Address, peer.Port);
 
         }
 
