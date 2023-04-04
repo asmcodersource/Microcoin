@@ -1,0 +1,43 @@
+name: Auto-deploy on push
+
+on:
+  push:
+    branches:
+      - '*'
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['6.0.x' ]
+
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v3
+    
+    - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+
+    - name: Deploy to Raspberry Pi
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PI_HOST }}
+        username: ${{ secrets.PI_USERNAME }}
+        password: ${{ secrets.PI_PRIVATE_KEY }}
+        script: |
+          sudo systemctl stop UponNetwork.service
+          cd /home/asmcoder/Projects
+          rm UponNet -rf
+          git clone https://github.com/asmcodersource/UponNet.git
+          cd UponNet
+          /home/asmcoder/.dotnet/dotnet build
+          sudo systemctl start UponNetwork.service
