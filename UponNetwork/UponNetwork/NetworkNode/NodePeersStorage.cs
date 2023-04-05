@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UponNetwork.NetworkNode
+namespace Microcoin.UponNetwork.NetworkNode
 {
     [Serializable]
     public class Peer
@@ -17,16 +17,16 @@ namespace UponNetwork.NetworkNode
 
         public Peer(string address, int port)
         {
-            this.Address = address;
-            this.Port = port;
-            this.LastOnlineTime = DateTime.UtcNow;
+            Address = address;
+            Port = port;
+            LastOnlineTime = DateTime.UtcNow;
         }
 
-        public Peer(string address, int port, DateTime lastOnlineTime )
+        public Peer(string address, int port, DateTime lastOnlineTime)
         {
-            this.Address = address;
-            this.Port = port;
-            this.LastOnlineTime = lastOnlineTime;
+            Address = address;
+            Port = port;
+            LastOnlineTime = lastOnlineTime;
         }
 
         public override int GetHashCode()
@@ -40,7 +40,7 @@ namespace UponNetwork.NetworkNode
     {
         bool IEqualityComparer<Peer>.Equals(Peer? x, Peer? y)
         {
-            return (x.Address == y.Address && x.Port == y.Port);
+            return x.Address == y.Address && x.Port == y.Port;
         }
 
         int IEqualityComparer<Peer>.GetHashCode(Peer obj)
@@ -77,7 +77,7 @@ namespace UponNetwork.NetworkNode
             if (!File.Exists(filePath))
                 throw new ApplicationException($"Cant load peers, file {filePath} not exists");
 
-            this.peersStorageFileName = filePath;
+            peersStorageFileName = filePath;
             BinaryFormatter formatter = new BinaryFormatter();
             using (FileStream fs = new FileStream(filePath, FileMode.Open))
             {

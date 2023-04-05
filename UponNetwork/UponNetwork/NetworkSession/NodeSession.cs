@@ -6,14 +6,14 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TcpNetwork;
-using UponNetwork.NetworkNode;
 using System.Security.Cryptography;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microcoin.UponNetwork.NetworkNode;
 
 
-namespace UponNetwork.NetworkSession
+namespace Microcoin.UponNetwork.NetworkSession
 {
     public class NodeSession
     {
@@ -25,8 +25,8 @@ namespace UponNetwork.NetworkSession
         public NodeSession(ITcpConnection tcpConnection, NodeServer server)
         {
             ReceiveCycleCancle = new CancellationTokenSource();
-            this.TcpConnection = tcpConnection;
-            this.NodeServer = server;
+            TcpConnection = tcpConnection;
+            NodeServer = server;
         }
 
         public override int GetHashCode()
@@ -42,11 +42,13 @@ namespace UponNetwork.NetworkSession
 
             try
             {
-              while(!ReceiveCycleCancle.IsCancellationRequested) {
+                while (!ReceiveCycleCancle.IsCancellationRequested)
+                {
                     var receivedPacket = await TcpConnection.ReceiveDataPacket();
                     PacketReceiveHandler(receivedPacket);
-              }  
-            } catch( SocketException exception)
+                }
+            }
+            catch (SocketException exception)
             {
                 // Something went wrong
                 TcpConnection.DropConnection();
@@ -78,7 +80,8 @@ namespace UponNetwork.NetworkSession
             {
                 TcpConnection.SendDataPacket(message, info);
                 RememberPacket(info);
-            } catch ( SocketException exception )
+            }
+            catch (SocketException exception)
             {
                 // Something went wrong
                 TcpConnection.DropConnection();
@@ -86,7 +89,7 @@ namespace UponNetwork.NetworkSession
             }
         }
 
-        protected void PacketReceiveHandler(ReceivedPacket packet) 
+        protected void PacketReceiveHandler(ReceivedPacket packet)
         {
             SessionPacketInfo packetInfo = (SessionPacketInfo)packet.Info;
             if (packetInfo.PeersToPass != -1)
@@ -99,7 +102,7 @@ namespace UponNetwork.NetworkSession
             if (packetInfo.MessageSenderPublicKey == NodeServer.Node.NodeCrypto?.publicKeyXml)
                 return;
 
-            if( packetInfo.PeersToPass != 0)  
+            if (packetInfo.PeersToPass != 0)
                 NodeServer.SendBroadcastMessage(this, packet);
             if (packetInfo.IsTehnicalPacket)
                 TechnicalMessageReceived.Invoke(this, packet);

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TcpNetwork;
 
-namespace UponNetwork.NetworkSession
+namespace Microcoin.UponNetwork.NetworkSession
 {
     public class SessionPacketInfoBuilder : ITcpPacketInfoBuilder
     {

@@ -2,12 +2,12 @@
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using TcpNetwork;
-using UponNetwork.NetworkSession;
+using Microcoin.UponNetwork.NetworkSession;
 
 using System.IO;
 using System.Text;
 
-namespace UponNetwork.NetworkNode
+namespace Microcoin.UponNetwork.NetworkNode
 {
     [Serializable]
     public class NodeCrypto

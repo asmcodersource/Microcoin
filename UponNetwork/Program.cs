@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TcpNetwork;
-using UponNetwork.NetworkSession;
 using System.Threading;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using UponNetwork.NetworkNode;
 using Microcoin.Settings;
+using Microcoin.UponNetwork.NetworkNode;
+using Microcoin.UponNetwork.NetworkSession;
 
 class Program
 {

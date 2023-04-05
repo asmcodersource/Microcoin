@@ -9,7 +9,7 @@ using TcpNetwork;
 using System.Security.Cryptography;
 using System.Net;
 
-namespace UponNetwork.NetworkSession
+namespace Microcoin.UponNetwork.NetworkSession
 {
 
     [Serializable]
@@ -38,7 +38,7 @@ namespace UponNetwork.NetworkSession
         public override int GetHashCode()
         {
             var builder = new StringBuilder();
-            builder.Append(String.Join(null, MessageSign));
+            builder.Append(string.Join(null, MessageSign));
             builder.AppendLine(PacketSize.ToString());
             builder.AppendLine(MessageSenderPublicKey);
             return builder.ToString().GetHashCode();

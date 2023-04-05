@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 using TcpNetwork;
-using UponNetwork.NetworkSession;
+using Microcoin.UponNetwork.NetworkSession;
 using System.Net;
 using static System.Collections.Specialized.BitVector32;
 
-namespace UponNetwork.NetworkNode
-{    
+namespace Microcoin.UponNetwork.NetworkNode
+{
     public class Node
     {
         public int ListeningPort { get; protected set; }
@@ -36,7 +36,7 @@ namespace UponNetwork.NetworkNode
             if (success == false)
                 return false;
             success = await connection.VerifyConnection();
-            if(success == false)
+            if (success == false)
                 return false;
 
             NodeServer.SessionCreateHandler(this, connection);
@@ -44,15 +44,15 @@ namespace UponNetwork.NetworkNode
             return true;
         }
 
-        public void PrepareNodeCrypto( string fileName )
+        public void PrepareNodeCrypto(string fileName)
         {
-            var dir = System.AppDomain.CurrentDomain.BaseDirectory;
-            System.IO.Directory.CreateDirectory(dir + "/keys");
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.CreateDirectory(dir + "/keys");
             string filePath = dir + "/keys/" + fileName;
-            if ( File.Exists(filePath))
+            if (File.Exists(filePath))
                 NodeCrypto = NodeCrypto.LoadKeysFromFile(filePath);
 
-            if( NodeCrypto == null )
+            if (NodeCrypto == null)
             {
                 NodeCrypto = new NodeCrypto();
                 NodeCrypto.CreateKeys(2048);
@@ -67,10 +67,10 @@ namespace UponNetwork.NetworkNode
                 throw new ApplicationException("NodeServer cant be initialized with out NodeCrypto");
 
             NodeServer = new NodeServer(this);
-            NodeServer.SessionReceivedMessage += (object sender, ReceivedPacket packet) => this.NodeReceivedMessage?.Invoke(this, packet);
-            NodeServer.SessionReceivedTechnicalMessage += (object sender, ReceivedPacket packet) => this.NodeReceivedTechnicalMessage?.Invoke(this, packet);
+            NodeServer.SessionReceivedMessage += (sender, packet) => NodeReceivedMessage?.Invoke(this, packet);
+            NodeServer.SessionReceivedTechnicalMessage += (sender, packet) => NodeReceivedTechnicalMessage?.Invoke(this, packet);
             var task = NodeServer.StartSpecificListener(IPAddress.Any, port);
-            
+
             Task.WaitAny(task);
             if (task.Result == false)
                 throw new ApplicationException("Something went wrong with node server initialize");
@@ -80,8 +80,8 @@ namespace UponNetwork.NetworkNode
 
         public void LoadPeersFromFile(string fileName)
         {
-            var dir = System.AppDomain.CurrentDomain.BaseDirectory;
-            System.IO.Directory.CreateDirectory(dir + "storage");
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.CreateDirectory(dir + "storage");
             if (!File.Exists(dir + "/storage/" + fileName))
                 SavePeersToFile(fileName);
             NodePeersStorage = new NodePeersStorage();
@@ -90,8 +90,8 @@ namespace UponNetwork.NetworkNode
 
         public void SavePeersToFile(string fileName)
         {
-            var dir = System.AppDomain.CurrentDomain.BaseDirectory;
-            System.IO.Directory.CreateDirectory(dir + "storage");
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.CreateDirectory(dir + "storage");
             NodePeersStorage = new NodePeersStorage();
             NodePeersStorage.SavePeers(dir + "/storage/" + fileName);
         }
@@ -100,7 +100,7 @@ namespace UponNetwork.NetworkNode
         public async Task CreateSessionsByPeersStorage()
         {
             var peers = NodePeersStorage.Peers.ToArray();
-            foreach( var peer in peers)
+            foreach (var peer in peers)
                 await ConnectToNode(peer.Address, peer.Port);
 
         }

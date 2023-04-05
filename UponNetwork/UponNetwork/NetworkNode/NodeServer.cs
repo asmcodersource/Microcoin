@@ -4,14 +4,12 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-
-
+using Microcoin.UponNetwork.NetworkSession;
 using TcpNetwork;
-using UponNetwork.NetworkSession;
 using static System.Collections.Specialized.BitVector32;
 
 
-namespace UponNetwork.NetworkNode
+namespace Microcoin.UponNetwork.NetworkNode
 {
     public class NodeServer
     {
@@ -20,14 +18,16 @@ namespace UponNetwork.NetworkNode
         public Dictionary<IPEndPoint, ITcpServer> InterfaceListeners { get; protected set; }
         public Dictionary<ITcpConnection, NodeSession> NodeSessions { get; protected set; }
 
-        public NodeServer(Node node) {
-            this.Node = node;
+        public NodeServer(Node node)
+        {
+            Node = node;
             ReceivedPacketsSet = new HashSet<int>();
             InterfaceListeners = new Dictionary<IPEndPoint, ITcpServer>();
             NodeSessions = new Dictionary<ITcpConnection, NodeSession>();
         }
 
-        public async Task<bool> StartSpecificListener(string addr, int port) {
+        public async Task<bool> StartSpecificListener(string addr, int port)
+        {
             IPAddress listenerAddr = IPAddress.Parse(addr);
             return await StartSpecificListener(listenerAddr, port);
         }
@@ -71,8 +71,8 @@ namespace UponNetwork.NetworkNode
             var session = new NodeSession(tcpConnection, this);
             NodeSessions.Add(tcpConnection, session);
             session.NodeServer = this;
-            session.MessageReceived += (object sender, ReceivedPacket packet) => this.SessionReceivedMessage?.Invoke(this, packet);
-            session.TechnicalMessageReceived += (object sender, ReceivedPacket packet) => this.SessionReceivedTechnicalMessage?.Invoke(this, packet);
+            session.MessageReceived += (sender, packet) => SessionReceivedMessage?.Invoke(this, packet);
+            session.TechnicalMessageReceived += (sender, packet) => SessionReceivedTechnicalMessage?.Invoke(this, packet);
             session.StartReceiveCycle();
 
             Node.NodeDiscovery.SendDiscoveryRequest(session);
@@ -83,15 +83,15 @@ namespace UponNetwork.NetworkNode
             var session = NodeSessions[tcpConnection];
             session.StopReceiveCycle();
             session.NodeServer = null;
-            session.MessageReceived -= this.SessionReceivedMessage;
-            session.TechnicalMessageReceived -= this.SessionReceivedTechnicalMessage;
+            session.MessageReceived -= SessionReceivedMessage;
+            session.TechnicalMessageReceived -= SessionReceivedTechnicalMessage;
             NodeSessions.Remove(tcpConnection);
         }
 
 
         public void SendBroadcastMessage(NodeSession session, ReceivedPacket packet)
         {
-            foreach( var nodeSession in NodeSessions )
+            foreach (var nodeSession in NodeSessions)
             {
                 var node = nodeSession.Value;
                 if (node == session)
@@ -101,12 +101,12 @@ namespace UponNetwork.NetworkNode
             }
         }
 
-        public void SendBroadcastMessage( byte[] message, bool isTechnical = false, int peersToPass = -1)
+        public void SendBroadcastMessage(byte[] message, bool isTechnical = false, int peersToPass = -1)
         {
             foreach (var nodeSession in NodeSessions)
             {
                 var node = nodeSession.Value;
-                if( node.TcpConnection.Socket.Connected )
+                if (node.TcpConnection.Socket.Connected)
                     node?.SendMessage(message, null, isTechnical, peersToPass);
             }
         }

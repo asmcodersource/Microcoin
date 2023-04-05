@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using TcpNetwork;
-using UponNetwork.NetworkSession;
+using Microcoin.UponNetwork.NetworkSession;
 using System;
 using System.Timers;
+using Microcoin.UponNetwork.NetworkSession;
 
-namespace UponNetwork.NetworkNode
+namespace Microcoin.UponNetwork.NetworkNode
 {
     [Serializable]
     public class DiscoveryMessage
@@ -23,8 +24,9 @@ namespace UponNetwork.NetworkNode
         public int Port { get; set; }
         public string? AdditionalMessage { get; set; }
 
-        public DiscoveryMessage() {
-            this.requestTime = DateTime.UtcNow;
+        public DiscoveryMessage()
+        {
+            requestTime = DateTime.UtcNow;
         }
 
         public DiscoveryMessage(DateTime requestTime, string address, int port, string? additionalMessage)
@@ -37,7 +39,7 @@ namespace UponNetwork.NetworkNode
 
         public DiscoveryMessage(string address, int port, string? additionalMessage)
         {
-            this.requestTime = DateTime.UtcNow;
+            requestTime = DateTime.UtcNow;
             Address = address;
             Port = port;
             AdditionalMessage = additionalMessage;
@@ -51,10 +53,10 @@ namespace UponNetwork.NetworkNode
         protected int TrafficCount { get; set; }
         protected System.Timers.Timer PIDTimer { get; set; }
 
-        public NodeDiscoveryIntervalPID( int targetTrafficPerMinute )
+        public NodeDiscoveryIntervalPID(int targetTrafficPerMinute)
         {
-            this.Interval = 1000;
-            this.TargetTrafficCount = targetTrafficPerMinute;
+            Interval = 1000;
+            TargetTrafficCount = targetTrafficPerMinute;
         }
 
         public void Start()
@@ -77,10 +79,10 @@ namespace UponNetwork.NetworkNode
             TrafficCount++;
         }
 
-        protected void RecalculateInterval(Object source, System.Timers.ElapsedEventArgs e)
+        protected void RecalculateInterval(object source, ElapsedEventArgs e)
         {
-            double difference = (TargetTrafficCount - (TrafficCount * 6));
-            Interval -= (difference * 0.25);
+            double difference = TargetTrafficCount - TrafficCount * 6;
+            Interval -= difference * 0.25;
             TrafficCount = 0;
             if (Interval < 400)
                 Interval = 400;
@@ -109,7 +111,7 @@ namespace UponNetwork.NetworkNode
 
         public async Task ComputeRequestString()
         {
-            if( externalIP == null )
+            if (externalIP == null)
                 externalIP = await GetExternalIPAddress();
             if (externalIP == null)
                 throw new ApplicationException("Cannot access site for IP define");
@@ -158,7 +160,7 @@ namespace UponNetwork.NetworkNode
             }
 
             nodeDiscoveryIntervalPID.TrafficIncreaseCount();
-            if (node.NodePeersStorage.Peers.Contains(peer)) 
+            if (node.NodePeersStorage.Peers.Contains(peer))
                 return;
 
             TcpConnection connection = new TcpConnection();
@@ -180,13 +182,13 @@ namespace UponNetwork.NetworkNode
         public void StartBeacon()
         {
             beaconTimer = new System.Timers.Timer();
-            beaconTimer.Interval = 1*1000;
-            beaconTimer.Elapsed += (Object source, System.Timers.ElapsedEventArgs e) => SendDiscoveryRequest();
+            beaconTimer.Interval = 1 * 1000;
+            beaconTimer.Elapsed += (source, e) => SendDiscoveryRequest();
             beaconTimer.AutoReset = true;
             beaconTimer.Enabled = true;
             beaconTimer.Start();
 
-            nodeDiscoveryIntervalPID.InvervalChanged += (object sender, int newInterval) => beaconTimer.Interval = newInterval;
+            nodeDiscoveryIntervalPID.InvervalChanged += (sender, newInterval) => beaconTimer.Interval = newInterval;
             nodeDiscoveryIntervalPID.Start();
         }
 
