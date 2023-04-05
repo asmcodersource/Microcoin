@@ -40,7 +40,7 @@ namespace Microcoin.Peer
     public enum MessageType
     {
         NopeMessage,
-        CreateNewOrder,
-        NewBlockCreated,
+        NewBlockMined,
+        CreateNewTransaction
     }
 }

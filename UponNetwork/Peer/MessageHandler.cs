@@ -37,8 +37,8 @@ namespace Microcoin.Peer
             lock (this)
             {
                 Console.WriteLine("Some packet received!");
-                Message packet = Message.Deserialize(receivedPacket.Data);
-                if (packet.ReceiverPublicKey != null && packet.ReceiverPublicKey != ParentNode.NodeCrypto.publicKeyXml)
+                Message message = Message.Deserialize(receivedPacket.Data);
+                if (message.ReceiverPublicKey != null && message.ReceiverPublicKey != ParentNode.NodeCrypto.publicKeyXml)
                     return;
 
                 Console.WriteLine("Some message received!");
