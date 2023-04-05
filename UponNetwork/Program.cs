@@ -14,68 +14,24 @@ using Microcoin.UponNetwork.NetworkSession;
 
 class Program
 {
-    static Node? node;
-    static object locked = new object();
-
     static async Task Main(string[] args)
     {
-        var settings = LoadSettingsFromFile("Settings.xml");
-        node = CreateNewNode(settings.PeerNetworkSettings.ListeningPort, settings.PeerNetworkSettings.PeerKeysFileName);
-        node.NodeReceivedTechnicalMessage += AnyMessageHandler;
-        node.NodeReceivedMessage += AnyMessageHandler;
-        await node.CreateSessionsByPeersStorage();
-        await node.NodeDiscovery.SendDiscoveryRequest();
-        node.NodeDiscovery.StartBeacon();
 
-        await node.ConnectToNode("192.168.0.101", 1300);
-        await node.NodeDiscovery.SendDiscoveryRequest();
+        var peer = new Microcoin.Peer.Peer();
+        var settings = Settings.LoadOrCreateSettingsFile("Settings.xml");
+        await peer.InitializeNode(settings);
+        await peer.Node.ConnectToNode("192.168.0.101", settings.PeerNetworkSettings.ListeningPort);
+        Console.WriteLine("Peer created");
 
-        await Task.Delay(-1);
-    }
-
-
-    static void AnyMessageHandler(object sender, ReceivedPacket packet)
-    {
-        lock (locked)
+        while (true)
         {
-            SessionPacketInfo sessionPacketInfo = (SessionPacketInfo)packet.Info;
-            Console.WriteLine($"\nNew message received from peer network");
-            Console.WriteLine($"Peer: {sessionPacketInfo.MessageSenderPublicKey}");
-            Console.WriteLine($"Message size: {sessionPacketInfo.PacketSize}");
-            Console.WriteLine($"Technical: {sessionPacketInfo.IsTehnicalPacket.ToString()}");
-            Console.WriteLine($"Date: {DateTime.UtcNow.ToString()}");
-            Console.WriteLine(Encoding.UTF8.GetString(packet.Data));
+            Microcoin.Peer.Message message = new Microcoin.Peer.Message();
+            message.MessageType = Microcoin.Peer.MessageType.NopeMessage;
+            message.SendingTime = DateTime.UtcNow;
+            message.ReceiverPublicKey = null;
+
+            peer?.Node?.SendMessage(message.Serialize());
+            await Task.Delay(2000);
         }
-    }
-
-
-    public static Settings LoadSettingsFromFile(string filePath)
-    {
-        Settings settings;
-        var dir = System.AppDomain.CurrentDomain.BaseDirectory;
-        string fullFilePath = Path.Combine(dir, filePath);
-        if(!File.Exists(fullFilePath))
-        {
-            settings = new Settings();
-            settings.SaveSettingsToFile(fullFilePath);
-            return settings;
-        } else
-        {
-            settings = Settings.LoadSettingsFromFile(fullFilePath);
-            return settings;
-        }  
-    }
-
-    static Node CreateNewNode(int port, string keyFileName)
-    {
-        Node node = new Node();
-        Console.Write("Initialize node keys...");
-        node.PrepareNodeCrypto(keyFileName + ".keys");
-        Console.WriteLine("Ok");
-        Console.Write("Starting node server...");
-        node.PrepareNodeServer(port);
-        node.LoadPeersFromFile(keyFileName + ".peers");
-        Console.WriteLine("Ok");
-        return node;
     }
 }

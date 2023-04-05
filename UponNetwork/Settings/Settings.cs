@@ -19,6 +19,24 @@ namespace Microcoin.Settings
             BlockchainSettings = new BlockchainSettings();
         }
 
+        public static Settings LoadOrCreateSettingsFile(string filePath)
+        {
+            Settings settings;
+            var dir = System.AppDomain.CurrentDomain.BaseDirectory;
+            string fullFilePath = Path.Combine(dir, filePath);
+            if (!File.Exists(fullFilePath))
+            {
+                settings = new Settings();
+                settings.SaveSettingsToFile(fullFilePath);
+                return settings;
+            }
+            else
+            {
+                settings = Settings.LoadSettingsFromFile(fullFilePath);
+                return settings;
+            }
+        }
+
         public static Settings LoadSettingsFromFile( string filePath )
         {
             if( !File.Exists( filePath ) ) 
