@@ -29,7 +29,7 @@ class Program
         while (true)
         {
             peer.Node.SendMessage(Encoding.UTF8.GetBytes("Hello world!" + DateTime.UtcNow.ToString()));
-            await Task.Delay(0);
+            await Task.Delay(100);
         }
 
         await Task.Delay(-1);

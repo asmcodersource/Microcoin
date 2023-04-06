@@ -75,7 +75,7 @@ namespace Microcoin.UponNetwork.NetworkNode
             session.TechnicalMessageReceived += (sender, packet) => SessionReceivedTechnicalMessage?.Invoke(this, packet);
             session.StartReceiveCycle();
 
-            Node.NodeDiscovery.SendDiscoveryRequest(session);
+            //Node.NodeDiscovery.SendDiscoveryRequest(session);
         }
 
         public void SessionDropHandler(object? sender, ITcpConnection tcpConnection)
@@ -91,7 +91,8 @@ namespace Microcoin.UponNetwork.NetworkNode
 
         public void SendBroadcastMessage(NodeSession session, ReceivedPacket packet)
         {
-            foreach (var nodeSession in NodeSessions)
+            var sessions = NodeSessions.ToArray();
+            foreach (var nodeSession in sessions)
             {
                 var node = nodeSession.Value;
                 if (node == session)
@@ -103,7 +104,8 @@ namespace Microcoin.UponNetwork.NetworkNode
 
         public void SendBroadcastMessage(byte[] message, bool isTechnical = false, int peersToPass = -1)
         {
-            foreach (var nodeSession in NodeSessions)
+            var sessions = NodeSessions.ToArray();
+            foreach (var nodeSession in sessions)
             {
                 var node = nodeSession.Value;
                 if (node.TcpConnection.Socket.Connected)
