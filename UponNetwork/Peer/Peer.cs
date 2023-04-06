@@ -43,6 +43,7 @@ namespace Microcoin.Peer
             transaction.SenderWallet = ((CryptoKeys)CryptoKeys).PublicKeyXml;
             transaction.CreationTime = DateTime.UtcNow;
 
+            message.MessageObject = transaction;
             Signer signer = new Signer();
             signer.SetKeys(CryptoKeys);
             signer.Sign(transaction);

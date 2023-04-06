@@ -10,6 +10,8 @@ using System.Xml.Serialization;
 namespace Microcoin.Data
 {
     [Serializable]
+    [XmlInclude(typeof(Transaction))]
+    [XmlInclude(typeof(Block))]
     public class Message: ISignable
     {
         public DateTime SendingTime { get; set; }

@@ -22,7 +22,7 @@ class Program
 
         var peer = new Microcoin.Peer.Peer();
         await peer.InitializePeer(settings);
-        await peer.Node.ConnectToNode("192.168.0.101", settings.PeerNetworkSettings.ListeningPort);
+        var success = await peer.Node.ConnectToNode("192.168.0.101", settings.PeerNetworkSettings.ListeningPort);
 
  
 
