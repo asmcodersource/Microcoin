@@ -31,13 +31,29 @@ namespace Microcoin.Peer
         public void HandleMessage(object sender, ReceivedPacket receivedPacket)
         {
             // Deserialize packet, and verify receiver address
-            lock (this)
+            Message message = Message.Deserialize(receivedPacket.Data);
+            if (message.ReceiverPublicKey != null && message.ReceiverPublicKey != ParentNode.NodeCrypto.publicKeyXml)
+                return;
+
+            switch(message.MessageType)
             {
-                Message message = Message.Deserialize(receivedPacket.Data);
-                if (message.ReceiverPublicKey != null && message.ReceiverPublicKey != ParentNode.NodeCrypto.publicKeyXml)
-                    return;
+                case MessageType.CreateNewTransaction:
+                    if (message.MessageObject as Transaction == null)
+                        return;
+                    ParentPeer.TransactionsPool.AddTransaction((Transaction)message.MessageObject);
+                    break;
+                case MessageType.NewBlockMined:
+                    if (message.MessageObject as Block == null)
+                        return;
+                    ParentPeer.Blockchain.NewBlockReceived((Block)message.MessageObject);
+                    break;
+                case MessageType.NopeMessage:
+                    Console.WriteLine("Someone sent nope message :D ");
+                    break;
 
-
+                default:
+                    Console.WriteLine("Someone sent wrong syntax message");
+                    break;
             }
         }
     }

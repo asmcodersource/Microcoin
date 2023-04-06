@@ -53,6 +53,8 @@ namespace Microcoin.Crypto
                 fileStream.Read(bytes, 0, bytes.Length);
                 string keys = Encoding.UTF8.GetString(bytes);
                 RSA.FromXmlString(keys);
+                PublicKeyXml = RSA.ToXmlString(false);
+                KeysXml = RSA.ToXmlString(true);
             }
         }
     }

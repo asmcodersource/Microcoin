@@ -8,12 +8,11 @@ namespace Microcoin.Data
 {
     public class Blockchain
     {
-        public List<Block> Blocks {  get; set; }
+        public List<Block> Blocks {  get; protected set; }
         
         public Blockchain()
         {
             Blocks = new List<Block>();
-
         }
 
         // Forse initiate of blockchain
@@ -30,12 +29,17 @@ namespace Microcoin.Data
             Block block = new Block();
             block.Signature = "";
             block.MiningReward = 0;
-            block.MagikValue = new byte[0];
+            block.MagikValue = 0;
             block.CreationTime = new DateTime(2023, 03, 13);
             block.Transactions = new List<Transaction>();
             block.Transactions.Add(transaction);
 
             return block;
+        }
+
+        public void NewBlockReceived( Block receivedBlock )
+        {
+
         }
     }
 }

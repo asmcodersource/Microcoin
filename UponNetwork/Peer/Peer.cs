@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microcoin.Crypto;
+using Microcoin.Data;
+using Microcoin.Settings;
 
 namespace Microcoin.Peer
 {
@@ -13,12 +15,40 @@ namespace Microcoin.Peer
         public MessageHandler? MessageHandler { get; protected set; }
         public Node? Node { get; protected set; }
         public ICryptoKeys? CryptoKeys { get; protected set; }
+        public Blockchain Blockchain { get; protected set; }
+        public TransactionsPool TransactionsPool { get; protected set; } = new TransactionsPool();
 
 
         public async Task InitializePeer(Settings.Settings settings)
         {
-            await InitializeNode(settings);
             InitializeCryptoKeys(settings);
+            await InitializeNode(settings);
+            await InitializeBlockchain(settings);
+        }
+
+        public void SendCoins(decimal coinsCount, string receiverWallet)
+        {
+            if (Node == null)
+                throw new ApplicationException("Peer is not initialized");
+
+            Message message = new Message();
+            message.MessageType = MessageType.CreateNewTransaction;
+            message.SendingTime = DateTime.UtcNow;
+            message.ReceiverPublicKey = "";
+            message.SenderPublicKey = ((CryptoKeys)CryptoKeys).PublicKeyXml;
+
+            Transaction transaction = new Transaction();
+            transaction.CoinsToSend = coinsCount;
+            transaction.ReceiverWallet = receiverWallet;
+            transaction.SenderWallet = ((CryptoKeys)CryptoKeys).PublicKeyXml;
+            transaction.CreationTime = DateTime.UtcNow;
+
+            Signer signer = new Signer();
+            signer.SetKeys(CryptoKeys);
+            signer.Sign(transaction);
+            signer.Sign(message);
+
+            Node.SendMessage(message.Serialize());
         }
 
         protected async Task InitializeNode(Settings.Settings settings)
@@ -49,6 +79,14 @@ namespace Microcoin.Peer
                 CryptoKeys.CreateKeys();
                 CryptoKeys.SaveKeys(keysFilePath);
             }
+        }
+
+        protected async Task InitializeBlockchain(Settings.Settings settings)
+        {
+            var begginerWaller = "<RSAKeyValue><Modulus>zF6cNhyqjHsf88OLnPSe3XyMpCzBHVBTcalgWMI4MnHuWbZ2XaCSYoc3m/3k4c/s+mtYY7B0AEr/7yviob+mcoyP6S1M/xzPw4NQAmB1F+CxhpKTbSkeh9y+IFaplVLLYS9zEceEZMY0ygiGYlqCxsAKRhWff888fo/nyZdZMf4EU1/sZUOtSPjUbIngDbj9NiFg6FLsd9MfiwU3VplP4Xk7xGsbZZvKVrDYlv8chDSflEqn5Dj64vfGkIanchHrW6DXDa5GK+TceUSIoi5qaRD5qlUDcrliDgzkVpQoGsVqtIvU1QULcOVKrVZKIg93Cs9Uu1OXvq8xgK3Fs/koAQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
+            var initialBlock = Blockchain.CreateInitialBlock(begginerWaller);
+            this.Blockchain = new Blockchain();
+            this.Blockchain.Blocks.Add(initialBlock);
         }
     }
 }

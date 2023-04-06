@@ -13,7 +13,7 @@ namespace Microcoin.Data
         public List<Transaction> Transactions { get; set; }
         public DateTime CreationTime { get; set; }
         public decimal MiningReward { get; set; }
-        public byte[] MagikValue { get; set; }
+        public UInt64 MagikValue { get; set; }
         public string MinerWallet { get; set; }
         public string Signature { get; set; }
     }

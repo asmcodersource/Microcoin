@@ -14,6 +14,6 @@ namespace Microcoin.Data
         public string SenderWallet { get; set; }
         public string ReceiverWallet { get; set; }
         public string Signature { get; set; }
-
+        public DateTime CreationTime { get; set; }
     }
 }
