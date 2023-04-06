@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microcoin.Data.Transaction
+namespace Microcoin.Data
 {
     [Serializable]
     public class Transaction : ISignable

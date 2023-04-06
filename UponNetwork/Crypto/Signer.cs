@@ -5,15 +5,14 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
-using Microcoin.Data.Block;
-using Microcoin.Data.Transaction;
+using Microcoin.Data;
 
 namespace Microcoin.Crypto
 {
     public class Signer: ISigner
     {
         CryptoKeys cryptoKeys;
-        protected object SHA = SHA256.Create();
+        protected object SHA = SHA512.Create();
 
         public void SetKeys(ICryptoKeys keys)
         {

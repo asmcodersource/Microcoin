@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 using Microcoin.UponNetwork.NetworkNode;
-using Microcoin.Peer;
 using TcpNetwork;
+using Microcoin.Data;
 
 namespace Microcoin.Peer
 {
@@ -25,9 +25,6 @@ namespace Microcoin.Peer
             this.serializer = new XmlSerializer(typeof(Message));
             this.ParentPeer = parentPeer;
             this.ParentNode = parentPeer.Node;
-
-            // Subscribe for receiving messages
-            this.ParentNode.NodeReceivedMessage += HandleMessage;
         }
 
 
@@ -36,12 +33,11 @@ namespace Microcoin.Peer
             // Deserialize packet, and verify receiver address
             lock (this)
             {
-                Console.WriteLine("Some packet received!");
                 Message message = Message.Deserialize(receivedPacket.Data);
                 if (message.ReceiverPublicKey != null && message.ReceiverPublicKey != ParentNode.NodeCrypto.publicKeyXml)
                     return;
 
-                Console.WriteLine("Some message received!");
+
             }
         }
     }

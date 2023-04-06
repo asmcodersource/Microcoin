@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microcoin.Data.Block
+namespace Microcoin.Data
 {
     [Serializable]
     public class Block : ISignable
     {
-        public List<Transaction.Transaction> Transactions { get; set; }
+        public List<Transaction> Transactions { get; set; }
+        public DateTime CreationTime { get; set; }
         public decimal MiningReward { get; set; }
         public byte[] MagikValue { get; set; }
         public string MinerWallet { get; set; }

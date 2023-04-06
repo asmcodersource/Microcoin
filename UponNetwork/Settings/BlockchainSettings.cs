@@ -9,5 +9,6 @@ namespace Microcoin.Settings
     [Serializable]
     public class BlockchainSettings
     {
+        public string? WalletKeysFile = "wallet.keys";
     }
 }

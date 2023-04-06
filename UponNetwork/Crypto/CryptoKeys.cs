@@ -20,14 +20,14 @@ namespace Microcoin.Crypto
 
         public void CreateKeys()
         {
-            RSA = new RSACryptoServiceProvider(512);
+            RSA = new RSACryptoServiceProvider(2048);
             PublicKeyXml = RSA.ToXmlString(false);
             KeysXml = RSA.ToXmlString(true);
         }
 
         public void InitializeByXml(string keysXml)
         {
-            RSA = new RSACryptoServiceProvider(512);
+            RSA = new RSACryptoServiceProvider();
             RSA.FromXmlString(keysXml);
             PublicKeyXml = RSA.ToXmlString(false);
         }
@@ -46,7 +46,7 @@ namespace Microcoin.Crypto
 
         public void LoadKeys(string filePath) 
         {
-            RSA = new RSACryptoServiceProvider(512);
+            RSA = new RSACryptoServiceProvider();
             using (FileStream fileStream = File.Open(filePath, FileMode.Open))
             {
                 byte[] bytes = new byte[fileStream.Length];

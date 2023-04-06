@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Microcoin.Peer
+namespace Microcoin.Data
 {
     [Serializable]
     public class Message
@@ -19,7 +19,8 @@ namespace Microcoin.Peer
         public byte[] Serialize()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Message));
-            using (MemoryStream stream = new MemoryStream()) {
+            using (MemoryStream stream = new MemoryStream())
+            {
                 serializer.Serialize(stream, this);
                 return stream.ToArray();
             }

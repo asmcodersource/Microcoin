@@ -99,10 +99,11 @@ namespace Microcoin.UponNetwork.NetworkNode
 
         public async Task CreateSessionsByPeersStorage()
         {
+            List<Task<bool>> tasks = new List<Task<bool>>();
             var peers = NodePeersStorage.Peers.ToArray();
             foreach (var peer in peers)
-                await ConnectToNode(peer.Address, peer.Port);
-
+                tasks.Add(ConnectToNode(peer.Address, peer.Port));
+            await Task.WhenAll(tasks);
         }
 
         public event EventHandler<ReceivedPacket> NodeReceivedMessage;

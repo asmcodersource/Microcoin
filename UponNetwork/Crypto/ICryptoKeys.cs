@@ -10,6 +10,7 @@ namespace Microcoin.Crypto
     {
         public void InitializeByXml(string keysXml);
         public void SaveKeys(string filePath);
+        public void LoadKeys(string filePath);
         public void CreateKeys();
     }
 }
