@@ -26,15 +26,11 @@ class Program
         await Task.Delay(1000);
 
 
-        Task task = new Task(() =>
+        while (true)
         {
-            while (true)
-            {
-                peer?.Node?.SendMessage(Encoding.UTF8.GetBytes("Hello world!"));
-                Thread.Sleep(100);
-            }
-        });
-        task.Start();
+            peer.Node.SendMessage(Encoding.UTF8.GetBytes("Hello world!" + DateTime.UtcNow.ToString()));
+            await Task.Delay(0);
+        }
 
         await Task.Delay(-1);
     }
