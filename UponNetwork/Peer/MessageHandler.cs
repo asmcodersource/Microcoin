@@ -32,7 +32,6 @@ namespace Microcoin.Peer
         {
             // Deserialize packet, and verify receiver address
             Console.WriteLine("Peer receive some message!");
-            Message message = Message.Deserialize(receivedPacket.Data);
 
 
         }

@@ -30,14 +30,8 @@ class Program
         {
             while (true)
             {
-                Message echo = new Microcoin.Data.Message();
-                echo.MessageType = MessageType.NopeMessage;
-                echo.SendingTime = DateTime.Now;
-
-
-                peer?.Node?.SendMessage(echo.Serialize());
-                //peer?.SendCoins(10, "sdasdasd");
-                Thread.Sleep(1);
+                peer?.Node?.SendMessage(Encoding.UTF8.GetBytes("Hello world!"));
+                Thread.Sleep(100);
             }
         });
         task.Start();
