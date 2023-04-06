@@ -28,7 +28,13 @@ class Program
 
         while (true)
         {
-            peer.Node.SendMessage(Encoding.UTF8.GetBytes("Hello world!" + DateTime.UtcNow.ToString()));
+            Message echo = new Microcoin.Data.Message();
+            echo.MessageType = MessageType.NopeMessage;
+            echo.SendingTime = DateTime.UtcNow;
+
+
+            peer?.Node?.SendMessage(echo.Serialize());
+            peer?.SendCoins(10, "sdasdasd");
             await Task.Delay(100);
         }
 
