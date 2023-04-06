@@ -31,10 +31,10 @@ class Program
             Message echo = new Microcoin.Data.Message();
             echo.MessageType = MessageType.NopeMessage;
             echo.SendingTime = DateTime.UtcNow;
-            echo.ReceiverPublicKey = "";
 
-            peer?.Node?.SendMessage(echo.Serialize());
 
+            //peer?.Node?.SendMessage(echo.Serialize());
+            peer?.SendCoins(10, "sdasdasd");
             await Task.Delay(2000);
         }
     }

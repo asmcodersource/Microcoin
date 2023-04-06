@@ -31,11 +31,13 @@ namespace Microcoin.Peer
         public void HandleMessage(object sender, ReceivedPacket receivedPacket)
         {
             // Deserialize packet, and verify receiver address
+            Console.WriteLine("Peer receive some message!");
             Message message = Message.Deserialize(receivedPacket.Data);
 
             switch(message.MessageType)
             {
                 case MessageType.CreateNewTransaction:
+                    Console.WriteLine("Received Create new transaction message");
                     if (message.MessageObject as Transaction == null)
                         return;
                     ParentPeer.TransactionsPool.AddTransaction((Transaction)message.MessageObject);
