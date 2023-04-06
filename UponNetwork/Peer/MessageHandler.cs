@@ -32,7 +32,6 @@ namespace Microcoin.Peer
         {
             // Deserialize packet, and verify receiver address
             try {
-                Console.WriteLine("Peer receive some message!");
                 Message message = Message.Deserialize(receivedPacket.Data);
                 switch (message.MessageType)
                 {
@@ -49,10 +48,6 @@ namespace Microcoin.Peer
                         break;
                     case MessageType.NopeMessage:
                         Console.WriteLine("Someone sent nope message :D ");
-                        break;
-
-                    default:
-                        Console.WriteLine("Someone sent wrong syntax message");
                         break;
                 }
             } catch ( Exception ex)

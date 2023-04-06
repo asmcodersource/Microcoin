@@ -35,7 +35,7 @@ class Program
 
             peer?.Node?.SendMessage(echo.Serialize());
             peer?.SendCoins(10, "sdasdasd");
-            await Task.Delay(100);
+            await Task.Delay(5099);
         }
 
         await Task.Delay(-1);
