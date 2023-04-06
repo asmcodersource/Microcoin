@@ -90,13 +90,13 @@ namespace Microcoin.UponNetwork.NetworkSession
             }
         }
 
-        protected void PacketReceiveHandler(ReceivedPacket packet)
+        protected async Task PacketReceiveHandler(ReceivedPacket packet)
         {
             SessionPacketInfo packetInfo = (SessionPacketInfo)packet.Info;
             if (packetInfo.PeersToPass != -1)
                 packetInfo.PeersToPass -= 1;
-            //if (!RememberPacket(packetInfo))
-            //    return;
+            if (!RememberPacket(packetInfo))
+                return;
             var success = NodeCrypto.VerifyMessageSign(packet.Data, packetInfo.MessageSign, packetInfo.MessageSenderPublicKey);
             if (success == false)
                 return;

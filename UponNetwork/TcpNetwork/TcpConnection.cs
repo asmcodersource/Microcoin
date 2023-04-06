@@ -176,6 +176,7 @@ namespace TcpNetwork
 
         public async virtual Task<ReceivedPacket> ReceiveDataPacket()
         {
+            Console.WriteLine("+++Request receive");
             await readSemaphore.WaitAsync();
             Console.WriteLine("---Receive some packet");
             try
@@ -193,6 +194,8 @@ namespace TcpNetwork
                 while (receivedBytes < packetInfoObject.PacketSize)
                 {
                     var count = await Socket.ReceiveAsync(new ArraySegment<byte>(packetData), SocketFlags.None, CancellationCurrentPacketReceive.Token);
+                    if (count == 0)
+                        throw new Exception("SUKA DA CHO TI HOCHESH");
                     receivedBytes = receivedBytes + count;
                 }
                 receivedPacket.Info = packetInfoObject;
