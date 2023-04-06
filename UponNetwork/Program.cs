@@ -23,19 +23,25 @@ class Program
         var peer = new Microcoin.Peer.Peer();
         await peer.InitializePeer(settings);
         await peer.Node.ConnectToNode("192.168.0.101", settings.PeerNetworkSettings.ListeningPort);
+        await Task.Delay(1000);
 
- 
 
-        while (true)
+        Task task = new Task(() =>
         {
-            Message echo = new Microcoin.Data.Message();
-            echo.MessageType = MessageType.NopeMessage;
-            echo.SendingTime = DateTime.UtcNow;
+            while (true)
+            {
+                Message echo = new Microcoin.Data.Message();
+                echo.MessageType = MessageType.NopeMessage;
+                echo.SendingTime = DateTime.Now;
 
 
-            //peer?.Node?.SendMessage(echo.Serialize());
-            peer?.SendCoins(10, "sdasdasd");
-            await Task.Delay(2000);
-        }
+                peer?.Node?.SendMessage(echo.Serialize());
+                peer?.SendCoins(10, "sdasdasd");
+                Thread.Sleep(1000);
+            }
+        });
+        task.Start();
+
+        await Task.Delay(-1);
     }
 }

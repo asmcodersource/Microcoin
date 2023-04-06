@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 namespace Microcoin.Data
 {
     [Serializable]
+    [XmlInclude(typeof(Object))]
     [XmlInclude(typeof(Transaction))]
     [XmlInclude(typeof(Block))]
     public class Message: ISignable

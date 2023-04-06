@@ -45,6 +45,7 @@ namespace Microcoin.UponNetwork.NetworkSession
                 while (!ReceiveCycleCancle.IsCancellationRequested)
                 {
                     var receivedPacket = await TcpConnection.ReceiveDataPacket();
+                    Console.WriteLine("Some message received!");
                     PacketReceiveHandler(receivedPacket);
                 }
             }
@@ -94,8 +95,8 @@ namespace Microcoin.UponNetwork.NetworkSession
             SessionPacketInfo packetInfo = (SessionPacketInfo)packet.Info;
             if (packetInfo.PeersToPass != -1)
                 packetInfo.PeersToPass -= 1;
-            if (!RememberPacket(packetInfo))
-                return;
+            //if (!RememberPacket(packetInfo))
+            //    return;
             var success = NodeCrypto.VerifyMessageSign(packet.Data, packetInfo.MessageSign, packetInfo.MessageSenderPublicKey);
             if (success == false)
                 return;

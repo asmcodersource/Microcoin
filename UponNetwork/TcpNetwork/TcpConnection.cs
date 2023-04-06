@@ -177,6 +177,7 @@ namespace TcpNetwork
         public async virtual Task<ReceivedPacket> ReceiveDataPacket()
         {
             await readSemaphore.WaitAsync();
+            Console.WriteLine("---Receive some packet");
             try
             {
                 ReceivedPacket receivedPacket = new ReceivedPacket();
@@ -201,6 +202,7 @@ namespace TcpNetwork
                 return receivedPacket;
             } finally
             {
+                Console.WriteLine("---Receive some packet ENDED");
                 readSemaphore.Release();
             }
         }
