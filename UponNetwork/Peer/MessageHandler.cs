@@ -32,8 +32,6 @@ namespace Microcoin.Peer
         {
             // Deserialize packet, and verify receiver address
             Message message = Message.Deserialize(receivedPacket.Data);
-            if (message.ReceiverPublicKey != null && message.ReceiverPublicKey != ParentNode.NodeCrypto.publicKeyXml)
-                return;
 
             switch(message.MessageType)
             {

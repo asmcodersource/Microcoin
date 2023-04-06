@@ -22,13 +22,19 @@ class Program
 
         var peer = new Microcoin.Peer.Peer();
         await peer.InitializePeer(settings);
-        var success = await peer.Node.ConnectToNode("192.168.0.101", settings.PeerNetworkSettings.ListeningPort);
+        await peer.Node.ConnectToNode("192.168.0.101", settings.PeerNetworkSettings.ListeningPort);
 
  
 
         while (true)
         {
-            peer.SendCoins(10, "asdsadasd");
+            Message echo = new Microcoin.Data.Message();
+            echo.MessageType = MessageType.NopeMessage;
+            echo.SendingTime = DateTime.UtcNow;
+            echo.ReceiverPublicKey = "";
+
+            peer?.Node?.SendMessage(echo.Serialize());
+
             await Task.Delay(2000);
         }
     }
