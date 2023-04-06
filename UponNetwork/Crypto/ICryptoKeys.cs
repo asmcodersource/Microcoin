@@ -9,7 +9,7 @@ namespace Microcoin.Crypto
     public interface ICryptoKeys
     {
         public void InitializeByXml(string keysXml);
-        public void CreateKeys(string filePath);
         public void SaveKeys(string filePath);
+        public void CreateKeys();
     }
 }

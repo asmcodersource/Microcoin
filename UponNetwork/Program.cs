@@ -11,11 +11,30 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Microcoin.Settings;
 using Microcoin.UponNetwork.NetworkNode;
 using Microcoin.UponNetwork.NetworkSession;
+using Microcoin.Crypto;
+using Microcoin.Data.Transaction;
 
 class Program
 {
     static async Task Main(string[] args)
     {
+
+        CryptoKeys keys = new CryptoKeys();
+        keys.CreateKeys();
+        ISigner signer = new Signer();
+        signer.SetKeys(keys);
+        IVerifier verifier = new Verifier();
+        verifier.SetKeys(keys);
+
+        Transaction transaction = new Transaction();
+        transaction.CoinsToSend = 10;
+        transaction.SenderWallet = keys.PublicKeyXml;
+        transaction.ReceiverWallet = "asdsad";
+
+        signer.Sign(transaction);
+        bool succesful = verifier.Verify(transaction);
+        Console.WriteLine("Verify return = {0}", succesful ? "True" : "False");
+
 
         var peer = new Microcoin.Peer.Peer();
         var settings = Settings.LoadOrCreateSettingsFile("Settings.xml");

@@ -10,7 +10,7 @@ using Microcoin.Data.Transaction;
 
 namespace Microcoin.Crypto
 {
-    public class Signer
+    public class Signer: ISigner
     {
         CryptoKeys cryptoKeys;
         protected object SHA = SHA256.Create();
@@ -22,28 +22,18 @@ namespace Microcoin.Crypto
                 throw new ApplicationException("Used non initialized keys, or wrong keys object");
         }
 
-        public string SignTransaction(Transaction transaction)
+        public string Sign(ISignable dataToSign)
         {
             if (cryptoKeys == null)
                 throw new ApplicationException("Used not initialized Crypto to sign transaction");
 
+            dataToSign.Signature = "";
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             MemoryStream memoryStream = new MemoryStream();
-            binaryFormatter.Serialize(memoryStream, transaction);
-            byte[] sign = cryptoKeys.RSA.SignData(memoryStream, SHA);
-            return Convert.ToBase64String(sign);
-        }
-
-        public string SignBlock(Block block)
-        {
-            if (cryptoKeys == null)
-                throw new ApplicationException("Used not initialized Crypto to sign block");
-
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            MemoryStream memoryStream = new MemoryStream();
-            binaryFormatter.Serialize(memoryStream, block);
-            byte[] sign = cryptoKeys.RSA.SignData(memoryStream, SHA);
-            return Convert.ToBase64String(sign);
+            binaryFormatter.Serialize(memoryStream, dataToSign);
+            byte[] sign = cryptoKeys.RSA.SignData(memoryStream.ToArray(), SHA);
+            dataToSign.Signature = Convert.ToBase64String(sign);
+            return dataToSign.Signature;
         }
     }
 }

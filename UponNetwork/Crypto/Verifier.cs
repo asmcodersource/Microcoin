@@ -10,7 +10,7 @@ using Microcoin.Data.Transaction;
 
 namespace Microcoin.Crypto
 {
-    public class Verifier
+    public class Verifier : IVerifier
     {
         CryptoKeys cryptoKeys;
         protected object SHA = SHA256.Create();
@@ -22,35 +22,19 @@ namespace Microcoin.Crypto
                 throw new ApplicationException("Used non initialized keys, or wrong keys object");
         }
 
-        public bool VerifyTransaction(Transaction transaction)
+        public bool Verify(ISignable dataToVerify)
         {
             if (cryptoKeys == null)
                 throw new ApplicationException("Used not initialized Verifier to verify transaction");
 
-            byte[] signature = Convert.FromBase64String(transaction.TransactionSign);
-            var tempSign = transaction.TransactionSign;
-            transaction.TransactionSign = null;
+            byte[] signature = Convert.FromBase64String(dataToVerify.Signature);
+            var tempSign = dataToVerify.Signature;
+            dataToVerify.Signature = "";
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             MemoryStream memoryStream = new MemoryStream();
-            binaryFormatter.Serialize(memoryStream, transaction);
+            binaryFormatter.Serialize(memoryStream, dataToVerify);
             bool verifyResult = cryptoKeys.RSA.VerifyData(memoryStream.ToArray(), SHA, signature);
-            transaction.TransactionSign = tempSign;
-            return verifyResult;
-        }
-
-        public bool VerifyBlock(Block block)
-        {
-            if (cryptoKeys == null)
-                throw new ApplicationException("Used not initialized Verifier to verify block");
-
-            byte[] signature = Convert.FromBase64String(block.BlockSign);
-            var tempSign = block.BlockSign;
-            block.BlockSign = null;
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            MemoryStream memoryStream = new MemoryStream();
-            binaryFormatter.Serialize(memoryStream, block);
-            bool verifyResult = cryptoKeys.RSA.VerifyData(memoryStream.ToArray(), SHA, signature);
-            block.BlockSign = tempSign;
+            dataToVerify.Signature = tempSign;
             return verifyResult;
         }
     }

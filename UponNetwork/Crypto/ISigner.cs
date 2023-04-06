@@ -11,7 +11,6 @@ namespace Microcoin.Crypto
     public interface ISigner
     {
         public void SetKeys(ICryptoKeys keys);
-        public string SignTransaction(Transaction transaction);
-        public string SignBlock(Block block);
+        public string Sign(ISignable dataToSign);
     }
 }

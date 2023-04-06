@@ -12,13 +12,13 @@ using System.Text;
 
 namespace Microcoin.Crypto
 {
-    public class CryptoKeys
+    public class CryptoKeys : ICryptoKeys
     {
         public RSACryptoServiceProvider? RSA { get; protected set; }
         public string PublicKeyXml { get; protected set; }
         public string KeysXml { get; protected set; }
 
-        public void CreateKeys(string filePath)
+        public void CreateKeys()
         {
             RSA = new RSACryptoServiceProvider(512);
             PublicKeyXml = RSA.ToXmlString(false);

@@ -11,7 +11,6 @@ namespace Microcoin.Crypto
     public interface IVerifier
     {
         public void SetKeys(ICryptoKeys keys);
-        public bool VerifyTransaction(Transaction transaction);
-        public bool VerifyBlock(Block block);
+        public bool Verify(ISignable dataToVerify);
     }
 }
