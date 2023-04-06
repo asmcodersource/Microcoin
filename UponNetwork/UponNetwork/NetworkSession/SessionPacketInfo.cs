@@ -37,11 +37,7 @@ namespace Microcoin.UponNetwork.NetworkSession
 
         public override int GetHashCode()
         {
-            var builder = new StringBuilder();
-            builder.Append(string.Join(null, MessageSign));
-            builder.AppendLine(PacketSize.ToString());
-            builder.AppendLine(MessageSenderPublicKey);
-            return builder.ToString().GetHashCode();
+            return HashCode.Combine(MessageSenderPublicKey, PacketSize, Convert.ToBase64String(MessageSign));
         }
     }
 }

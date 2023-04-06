@@ -22,8 +22,8 @@ namespace Microcoin.Peer
         public async Task InitializePeer(Settings.Settings settings)
         {
             InitializeCryptoKeys(settings);
-            await InitializeNode(settings);
             await InitializeBlockchain(settings);
+            await InitializeNode(settings);
         }
 
         public void SendCoins(decimal coinsCount, string receiverWallet)
@@ -60,6 +60,7 @@ namespace Microcoin.Peer
             Node.PrepareNodeCrypto(settings.PeerNetworkSettings.PeerKeysFileName);
             Node.PrepareNodeServer(settings.PeerNetworkSettings.ListeningPort);
             Node.LoadPeersFromFile(settings.PeerNetworkSettings.PeerKeysFileName);
+            //Node.NodeDiscovery.StartBeacon();
             await Node.CreateSessionsByPeersStorage();
         } 
 

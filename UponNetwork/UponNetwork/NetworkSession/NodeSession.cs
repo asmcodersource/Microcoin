@@ -45,8 +45,7 @@ namespace Microcoin.UponNetwork.NetworkSession
                 while (!ReceiveCycleCancle.IsCancellationRequested)
                 {
                     var receivedPacket = await TcpConnection.ReceiveDataPacket();
-                    Console.WriteLine("Some message received!");
-                    PacketReceiveHandler(receivedPacket);
+                    await PacketReceiveHandler(receivedPacket);
                 }
             }
             catch (SocketException exception)
@@ -114,11 +113,14 @@ namespace Microcoin.UponNetwork.NetworkSession
         // Return false if packets duplicated
         protected bool RememberPacket(SessionPacketInfo packetInfo)
         {
-            int packetHash = packetInfo.GetHashCode();
-            if (NodeServer.ReceivedPacketsSet.Contains(packetHash))
-                return false;
-            NodeServer.ReceivedPacketsSet.Add(packetHash);
-            return true;
+            lock (NodeServer)
+            {
+                int packetHash = packetInfo.GetHashCode();
+                if (NodeServer.ReceivedPacketsSet.Contains(packetHash))
+                    return false;
+                NodeServer.ReceivedPacketsSet.Add(packetHash);
+                return true;
+            }
         }
 
         public event EventHandler<ReceivedPacket> MessageReceived;
