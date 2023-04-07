@@ -17,6 +17,7 @@ namespace Microcoin.Peer
         public ICryptoKeys? CryptoKeys { get; protected set; }
         public Blockchain Blockchain { get; protected set; }
         public TransactionsPool TransactionsPool { get; protected set; }
+        public Task<ulong>? MiningTask { get; protected set; }
 
 
         public async Task InitializePeer(Settings.Settings settings)
@@ -90,6 +91,39 @@ namespace Microcoin.Peer
             this.Blockchain = new Blockchain();
             this.Blockchain.Blocks.Add(initialBlock);
             this.TransactionsPool = new TransactionsPool(this.Blockchain);
+            this.TransactionsPool.NewTransactionConfirmed += TransactionsConfirmHandler;
+        }
+
+        protected async void TransactionsConfirmHandler(object sender, EventArgs eventArgs)
+        {
+            var lastBlockCreationTime = DateTime.UtcNow.Subtract(Blockchain.Blocks[^1].CreationTime);
+            if (lastBlockCreationTime.TotalMinutes < 10 || TransactionsPool.Transactions.Count == 0)
+                return;
+            if (MiningTask is not null)
+                return;
+
+            var prewBlock = Blockchain.Blocks[^1];
+            Block block = new Block();
+
+                block.Transactions = TransactionsPool.ClaimTransactionsForBlock();
+                block.MiningReward = 10;
+                block.MinerWallet = ((CryptoKeys)CryptoKeys).PublicKeyXml;
+                block.PrewBlockHash = Convert.ToBase64String(prewBlock.BlockHash());
+                block.CreationTime = DateTime.UtcNow;
+                block.Id = Blockchain.Blocks.Count;
+                Blockchain.Blocks.Add(block);
+            
+
+            Console.WriteLine("Start mining block");
+            var miner = new Microcoin.Miner.Miner();
+            miner.MiningComplete += MiningCompleteHandler;
+            MiningTask = miner.MineBlock(block, 64);
+        }
+
+        protected void MiningCompleteHandler(object sender, ulong magikValue)
+        {
+            MiningTask = null;
+            Console.WriteLine("Mining complete");
         }
     }
 }

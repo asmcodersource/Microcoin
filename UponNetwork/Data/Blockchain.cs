@@ -21,7 +21,11 @@ namespace Microcoin.Data
             int blockCount = Blocks.Count;
             for( int i = 0; i < Blocks.Count; i++)
             {
-                var transactions = Blocks[i].Transactions;
+                var block = Blocks[i];
+                if (block.MinerWallet == walletPublicKey)
+                    coins += block.MiningReward;
+
+                var transactions = block.Transactions;
                 foreach( Transaction transaction in transactions ) {
                     if (transaction.SenderWallet == walletPublicKey)
                         coins -= transaction.CoinsToSend;
@@ -44,7 +48,7 @@ namespace Microcoin.Data
             transaction.Signature = "";
 
             Block block = new Block();
-            block.Signature = "";
+            block.Id = 0;
             block.MiningReward = 0;
             block.MagikValue = 0;
             block.CreationTime = new DateTime(2023, 03, 13);
@@ -54,9 +58,10 @@ namespace Microcoin.Data
             return block;
         }
 
-        public void NewBlockReceived( Block receivedBlock )
+        public void CreateNewBlock(TransactionsPool transactionsPool)
         {
-
+            var transactions = transactionsPool.ClaimTransactionsForBlock();
+            
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Microcoin.Peer
                     case MessageType.NewBlockMined:
                         if (message.MessageObject is not Block)
                             return;
-                        ParentPeer.Blockchain.NewBlockReceived((Block)message.MessageObject);
+                        
                         break;
                     case MessageType.NopeMessage:
                         break;
