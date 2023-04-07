@@ -15,6 +15,23 @@ namespace Microcoin.Data
             Blocks = new List<Block>();
         }
 
+        public decimal CalculateWalletCoins(string walletPublicKey)
+        {
+            decimal coins = 0;
+            int blockCount = Blocks.Count;
+            for( int i = 0; i < Blocks.Count; i++)
+            {
+                var transactions = Blocks[i].Transactions;
+                foreach( Transaction transaction in transactions ) {
+                    if (transaction.SenderWallet == walletPublicKey)
+                        coins -= transaction.CoinsToSend;
+                    else if( transaction.ReceiverWallet == walletPublicKey )
+                        coins += transaction.CoinsToSend;
+                }
+            }
+            return coins;
+        }
+
         // Forse initiate of blockchain
         // by creating first block 
         // here you can give yourself billions of coins :)

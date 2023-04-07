@@ -16,7 +16,7 @@ namespace Microcoin.Peer
         public Node? Node { get; protected set; }
         public ICryptoKeys? CryptoKeys { get; protected set; }
         public Blockchain Blockchain { get; protected set; }
-        public TransactionsPool TransactionsPool { get; protected set; } = new TransactionsPool();
+        public TransactionsPool TransactionsPool { get; protected set; }
 
 
         public async Task InitializePeer(Settings.Settings settings)
@@ -89,6 +89,7 @@ namespace Microcoin.Peer
             var initialBlock = Blockchain.CreateInitialBlock(begginerWaller);
             this.Blockchain = new Blockchain();
             this.Blockchain.Blocks.Add(initialBlock);
+            this.TransactionsPool = new TransactionsPool(this.Blockchain);
         }
     }
 }

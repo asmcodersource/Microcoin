@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using Microcoin.UponNetwork.NetworkNode;
 using TcpNetwork;
 using Microcoin.Data;
+using System.Diagnostics;
 
 namespace Microcoin.Peer
 {
@@ -36,23 +37,21 @@ namespace Microcoin.Peer
                 switch (message.MessageType)
                 {
                     case MessageType.CreateNewTransaction:
-                        Console.WriteLine("Received Create new transaction message");
-                        if (message.MessageObject as Transaction == null)
+                        if (message.MessageObject is not Transaction)
                             return;
                         ParentPeer.TransactionsPool.AddTransaction((Transaction)message.MessageObject);
                         break;
                     case MessageType.NewBlockMined:
-                        if (message.MessageObject as Block == null)
+                        if (message.MessageObject is not Block)
                             return;
                         ParentPeer.Blockchain.NewBlockReceived((Block)message.MessageObject);
                         break;
                     case MessageType.NopeMessage:
-                        Console.WriteLine("Someone sent nope message :D ");
                         break;
                 }
             } catch ( Exception ex)
             {
-                Console.WriteLine($"{ex.Message}");
+                Debug.WriteLine(ex.Message);
             }
         } 
     }
