@@ -70,8 +70,8 @@ namespace Microcoin.Mining
             // https://www.desmos.com/calculator/6ivsjgpcul
             var x = passedMilliseconds / 1000;
             x = x <= 600 ? 600.000000001 : x; 
-            var c = (280.0 / 0.1*(x - 600)) + 10.0;
-            c = c > 32 ? 32 : c;
+            var c = (280.0 / (0.05*(x - 600))) + 10.0;
+            c = c > 63 ? 63 : c;
             return (int)c;
         }
 

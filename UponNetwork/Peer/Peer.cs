@@ -121,8 +121,17 @@ namespace Microcoin.Peer
             lock (this)
             {
                 var block = Miner.LastMiningBlock;
+                block.MagikValue = magikValue;
+                byte[] hash = block.BlockHash();
+
+                int i = 0; 
+                for (i = 0; i < 50; i++)
+                    if ((hash[i / 8] & (i % 8)) != 0)
+                        break;
+
                 Console.WriteLine("Mining complete!");
                 Console.WriteLine("Block creation time = " + block.CreationTime.ToShortTimeString());
+                Console.WriteLine("Complexity = " + i);
                 Blockchain.Blocks.Add(block);
             }
         }
