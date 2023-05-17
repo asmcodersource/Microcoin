@@ -13,9 +13,11 @@ namespace Microcoin.Mining
         protected List<Task> MinerTasks { get; set; }
         protected CancellationTokenSource CancelMiningSource { get; set; }
         protected DateTime MiningStartTime { get; set; }
+        public Block LastMiningBlock { get; protected set; }
 
         public void StartBlockMining( Block block, DateTime startMiningTime )
         {
+            LastMiningBlock = block;
             IsMining = new bool();
             IsMining = true;
             MinerTasks.Clear();
@@ -66,8 +68,9 @@ namespace Microcoin.Mining
         public int CalculateComplexity(double passedMilliseconds )
         {
             // https://www.desmos.com/calculator/6ivsjgpcul
-            passedMilliseconds = passedMilliseconds <= 600 ? 600.000000001 : passedMilliseconds; 
-            var c = 280.0 / passedMilliseconds + 10.0;
+            var x = passedMilliseconds / 1000;
+            x = x <= 600 ? 600.000000001 : x; 
+            var c = (280.0 / 0.1*(x - 600)) + 10.0;
             c = c > 32 ? 32 : c;
             return (int)c;
         }

@@ -105,16 +105,22 @@ namespace Microcoin.Peer
 
         protected async void TransactionsConfirmHandler(object sender, EventArgs eventArgs)
         {
-            if (Miner.IsMining == false)
-                return;
+            lock (this)
+            {
+                if (Miner.IsMining == false)
+                    return;
 
-            Block block = TransactionsPool.ClaimNextBlock();
-            Miner.StartBlockMining(block, Blockchain.Blocks[^1].CreationTime);            
+                Console.WriteLine("Start mining");
+                Block block = TransactionsPool.ClaimNextBlock();
+                Miner.StartBlockMining(block, Blockchain.Blocks[^1].CreationTime);
+            }
         }
 
         protected void MiningCompleteHandler(object sender, ulong magikValue)
         {
-            Console.WriteLine("Mining complete");
+            var block = Miner.LastMiningBlock;
+            Console.WriteLine("Mining complete!");
+            Console.WriteLine("Block creation time = " + block.CreationTime.ToShortTimeString());
         }
     }
 }
