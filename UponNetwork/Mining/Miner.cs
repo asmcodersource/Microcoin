@@ -1,0 +1,77 @@
+﻿using Microcoin.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Microcoin.Mining
+{
+    public class Miner
+    {
+        public bool? IsMining { get; set; } = false;
+        protected List<Task> MinerTasks { get; set; }
+        protected CancellationTokenSource CancelMiningSource { get; set; }
+        protected DateTime MiningStartTime { get; set; }
+
+        public void StartBlockMining( Block block, DateTime startMiningTime )
+        {
+            IsMining = new bool();
+            IsMining = true;
+            MinerTasks.Clear();
+            CancelMiningSource = new CancellationTokenSource();
+            MiningStartTime = startMiningTime;
+            for ( int i = 0; i < Environment.ProcessorCount; i++ )
+            {
+                var task = MineBlock(block.Clone(), IsMining);
+                MinerTasks.Add(task);
+            }
+        }
+
+        public async Task MineBlock( Block targetBlock, bool? isMining )
+        {
+            Random random = new Random();
+            while (CancelMiningSource.IsCancellationRequested == false && IsMining == true )
+            {
+               int complexity = CalculateComplexity(DateTime.UtcNow.Subtract(MiningStartTime).TotalMilliseconds);
+               for ( int i = 0; i < 4096; i++)
+               {    
+                    var magikValue = (ulong)random.NextInt64();
+                    targetBlock.MagikValue = (ulong)magikValue;
+                    var blockHash = targetBlock.BlockHash();
+                    if( VerifyHashComplexity(blockHash, complexity) == true)
+                    {
+                        lock (this)
+                        {
+                            if (IsMining == false)
+                                return;
+                            IsMining = false;
+                            MiningComplete?.Invoke(this, magikValue);
+                            return;
+                        }
+                    }
+                }
+               await Task.Yield();
+            }
+        }
+
+        public static bool VerifyHashComplexity(byte[] hash, int complexity)
+        {
+            for (int i = 0; i < complexity; i++)
+                if ((hash[i / 8] & (i % 8)) != 0)
+                    return false;
+            return true;
+        }
+
+        public int CalculateComplexity(double passedMilliseconds )
+        {
+            // https://www.desmos.com/calculator/6ivsjgpcul
+            passedMilliseconds = passedMilliseconds <= 600 ? 600.000000001 : passedMilliseconds; 
+            var c = 280.0 / passedMilliseconds + 10.0;
+            c = c > 32 ? 32 : c;
+            return (int)c;
+        }
+
+        public event EventHandler<ulong> MiningComplete;
+    }
+}

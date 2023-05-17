@@ -31,5 +31,10 @@ namespace Microcoin.Data
             binaryFormatter.Serialize(memoryStream, this);
             return SHA.ComputeHash(memoryStream.ToArray());
         }
+
+        public Block Clone()
+        {
+            return (Block)this.MemberwiseClone();
+        }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microcoin.Crypto;
 using Microcoin.Data;
 using Microcoin.Settings;
+using Microcoin.Mining;
 
 namespace Microcoin.Peer
 {
@@ -17,11 +18,13 @@ namespace Microcoin.Peer
         public ICryptoKeys? CryptoKeys { get; protected set; }
         public Blockchain Blockchain { get; protected set; }
         public TransactionsPool TransactionsPool { get; protected set; }
+        public Miner Miner { get; protected set; }
         public Task<ulong>? MiningTask { get; protected set; }
 
 
         public async Task InitializePeer(Settings.Settings settings)
         {
+            InitializeMiner(settings);
             InitializeCryptoKeys(settings);
             await InitializeBlockchain(settings);
             await InitializeNode(settings);
@@ -94,24 +97,23 @@ namespace Microcoin.Peer
             this.TransactionsPool.NewTransactionConfirmed += TransactionsConfirmHandler;
         }
 
+        protected void InitializeMiner(Settings.Settings settings)
+        {
+            Miner = new Miner();
+            Miner.MiningComplete += MiningCompleteHandler;
+        }
+
         protected async void TransactionsConfirmHandler(object sender, EventArgs eventArgs)
         {
-            var lastBlockCreationTime = DateTime.UtcNow.Subtract(Blockchain.Blocks[^1].CreationTime);
-            if (lastBlockCreationTime.TotalMinutes < 1 || TransactionsPool.Transactions.Count == 0)
-                return;
-            if (MiningTask is not null)
+            if (Miner.IsMining == false)
                 return;
 
             Block block = TransactionsPool.ClaimNextBlock();
-            var miner = new Microcoin.Miner.Miner();
-            miner.MiningComplete += MiningCompleteHandler;
-            MiningTask = miner.MineBlock(block, 50);
+            Miner.StartBlockMining(block, Blockchain.Blocks[^1].CreationTime);            
         }
 
         protected void MiningCompleteHandler(object sender, ulong magikValue)
         {
-            Blockchain.Blocks[^1].MagikValue = magikValue;
-            MiningTask = null;
             Console.WriteLine("Mining complete");
         }
     }

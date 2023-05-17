@@ -35,7 +35,7 @@ class Program
 
 
                 //peer?.Node?.SendMessage(echo.Serialize());
-                peer?.SendCoins(10, "sdasdasd");
+                peer?.SendCoins((decimal)0.01, "sdasdasd");
                 Thread.Sleep(1000);
             }
         });
