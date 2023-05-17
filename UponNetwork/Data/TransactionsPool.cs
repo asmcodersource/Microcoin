@@ -24,7 +24,6 @@ namespace Microcoin.Data
         public void AddTransaction( Transaction transaction )
         {
 
-            Console.WriteLine("SUKA CHO TI HOCHESH PADLO?!");
             lock (this)
             {
                 ICryptoKeys cryptoKeys = new CryptoKeys();
@@ -55,19 +54,22 @@ namespace Microcoin.Data
             }
         }
 
-        public List<Transaction> ClaimTransactionsForBlock()
+        public Block ClaimNextBlock()
         {
             var comparer = new TransactionSortComparer();
             var transactions = this.Transactions;
-            
-            lock (Transactions) {
-               this.Transactions.Sort(comparer);
-               transactions = this.Transactions;
-               this.PoolCoinsBalance.Clear();
-               this.Transactions = new List<Transaction>();
-            }
+            Block block = new Block();
 
-            return transactions;
+            lock (this)
+            {
+                this.Transactions.Sort(comparer);
+                transactions = this.Transactions;
+                this.PoolCoinsBalance.Clear();
+                this.Transactions = new List<Transaction>();
+
+                block = Blockchain.CreateBlockForMining(transactions);
+                return block;
+            }
         }
 
         public event EventHandler NewTransactionConfirmed;

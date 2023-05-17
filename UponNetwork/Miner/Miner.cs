@@ -13,6 +13,7 @@ namespace Microcoin.Miner
 
         public async Task<ulong> MineBlock(Block blockToMine, int complexity)
         {
+            Console.WriteLine("Start mining block");
             Random random = new Random();
             CancelMiningSource = new CancellationTokenSource();
             ulong? resultMagikValue = null;

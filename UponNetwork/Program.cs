@@ -34,7 +34,7 @@ class Program
                 echo.SendingTime = DateTime.UtcNow;
 
 
-                peer?.Node?.SendMessage(echo.Serialize());
+                //peer?.Node?.SendMessage(echo.Serialize());
                 peer?.SendCoins(10, "sdasdasd");
                 Thread.Sleep(1000);
             }

@@ -88,7 +88,7 @@ namespace Microcoin.Peer
         {
             var begginerWaller = "<RSAKeyValue><Modulus>zF6cNhyqjHsf88OLnPSe3XyMpCzBHVBTcalgWMI4MnHuWbZ2XaCSYoc3m/3k4c/s+mtYY7B0AEr/7yviob+mcoyP6S1M/xzPw4NQAmB1F+CxhpKTbSkeh9y+IFaplVLLYS9zEceEZMY0ygiGYlqCxsAKRhWff888fo/nyZdZMf4EU1/sZUOtSPjUbIngDbj9NiFg6FLsd9MfiwU3VplP4Xk7xGsbZZvKVrDYlv8chDSflEqn5Dj64vfGkIanchHrW6DXDa5GK+TceUSIoi5qaRD5qlUDcrliDgzkVpQoGsVqtIvU1QULcOVKrVZKIg93Cs9Uu1OXvq8xgK3Fs/koAQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
             var initialBlock = Blockchain.CreateInitialBlock(begginerWaller);
-            this.Blockchain = new Blockchain();
+            this.Blockchain = new Blockchain(this);
             this.Blockchain.Blocks.Add(initialBlock);
             this.TransactionsPool = new TransactionsPool(this.Blockchain);
             this.TransactionsPool.NewTransactionConfirmed += TransactionsConfirmHandler;
@@ -97,31 +97,20 @@ namespace Microcoin.Peer
         protected async void TransactionsConfirmHandler(object sender, EventArgs eventArgs)
         {
             var lastBlockCreationTime = DateTime.UtcNow.Subtract(Blockchain.Blocks[^1].CreationTime);
-            if (lastBlockCreationTime.TotalMinutes < 10 || TransactionsPool.Transactions.Count == 0)
+            if (lastBlockCreationTime.TotalMinutes < 1 || TransactionsPool.Transactions.Count == 0)
                 return;
             if (MiningTask is not null)
                 return;
 
-            var prewBlock = Blockchain.Blocks[^1];
-            Block block = new Block();
-
-                block.Transactions = TransactionsPool.ClaimTransactionsForBlock();
-                block.MiningReward = 10;
-                block.MinerWallet = ((CryptoKeys)CryptoKeys).PublicKeyXml;
-                block.PrewBlockHash = Convert.ToBase64String(prewBlock.BlockHash());
-                block.CreationTime = DateTime.UtcNow;
-                block.Id = Blockchain.Blocks.Count;
-                Blockchain.Blocks.Add(block);
-            
-
-            Console.WriteLine("Start mining block");
+            Block block = TransactionsPool.ClaimNextBlock();
             var miner = new Microcoin.Miner.Miner();
             miner.MiningComplete += MiningCompleteHandler;
-            MiningTask = miner.MineBlock(block, 64);
+            MiningTask = miner.MineBlock(block, 50);
         }
 
         protected void MiningCompleteHandler(object sender, ulong magikValue)
         {
+            Blockchain.Blocks[^1].MagikValue = magikValue;
             MiningTask = null;
             Console.WriteLine("Mining complete");
         }

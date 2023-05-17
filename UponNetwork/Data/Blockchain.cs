@@ -1,17 +1,22 @@
-﻿using System;
+﻿using Microcoin.Crypto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microcoin;
+
 namespace Microcoin.Data
 {
     public class Blockchain
     {
+        public Peer.Peer Peer { get; protected set; }
         public List<Block> Blocks {  get; protected set; }
         
-        public Blockchain()
+        public Blockchain(Peer.Peer parentPeer)
         {
+            Peer = parentPeer;
             Blocks = new List<Block>();
         }
 
@@ -58,9 +63,24 @@ namespace Microcoin.Data
             return block;
         }
 
+        public Block CreateBlockForMining(List<Transaction> transactions)
+        {
+            var prewBlock = Blocks[^1];
+
+            Block block = new Block();
+            block.Transactions = transactions;
+            block.MiningReward = 10;
+            block.MinerWallet = ((CryptoKeys)Peer.CryptoKeys).PublicKeyXml;
+            block.PrewBlockHash = Convert.ToBase64String(prewBlock.BlockHash());
+            block.CreationTime = DateTime.UtcNow;
+            block.Id = Blocks.Count;
+            Blocks.Add(block);
+
+            return block;
+        }
+
         public void CreateNewBlock(TransactionsPool transactionsPool)
         {
-            var transactions = transactionsPool.ClaimTransactionsForBlock();
             
         }
     }
