@@ -118,9 +118,13 @@ namespace Microcoin.Peer
 
         protected void MiningCompleteHandler(object sender, ulong magikValue)
         {
-            var block = Miner.LastMiningBlock;
-            Console.WriteLine("Mining complete!");
-            Console.WriteLine("Block creation time = " + block.CreationTime.ToShortTimeString());
+            lock (this)
+            {
+                var block = Miner.LastMiningBlock;
+                Console.WriteLine("Mining complete!");
+                Console.WriteLine("Block creation time = " + block.CreationTime.ToShortTimeString());
+                Blockchain.Blocks.Add(block);
+            }
         }
     }
 }
