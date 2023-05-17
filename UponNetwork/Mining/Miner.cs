@@ -10,7 +10,7 @@ namespace Microcoin.Mining
     public class Miner
     {
         public bool? IsMining { get; set; } = false;
-        protected List<Task> MinerTasks { get; set; }
+        protected List<Task> MinerTasks { get; set; } = new List<Task>(); 
         protected CancellationTokenSource CancelMiningSource { get; set; }
         protected DateTime MiningStartTime { get; set; }
         public Block LastMiningBlock { get; protected set; }
