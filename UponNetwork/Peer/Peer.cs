@@ -107,7 +107,7 @@ namespace Microcoin.Peer
         {
             lock (this)
             {
-                if (Miner.IsMining == false)
+                if (Miner.IsMining == true)
                     return;
 
                 Console.WriteLine("Start mining");
