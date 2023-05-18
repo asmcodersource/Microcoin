@@ -73,7 +73,7 @@ namespace Microcoin.Mining
             var x = passedMilliseconds / 1000;
             x = x <= 600 ? 600.000000001 : x; 
             var c = (280.0 / (0.05*(x - 600))) + 40.0;
-            c = c > 63 ? 63 : c;
+            c = c > 256 ? 256 : c;
             return (int)c;
         }
 
