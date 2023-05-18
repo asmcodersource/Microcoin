@@ -84,7 +84,7 @@ namespace Microcoin.Peer
             Node.PrepareNodeCrypto(settings.PeerNetworkSettings.PeerKeysFileName);
             Node.PrepareNodeServer(settings.PeerNetworkSettings.ListeningPort);
             Node.LoadPeersFromFile(settings.PeerNetworkSettings.PeerKeysFileName);
-            //Node.NodeDiscovery.StartBeacon();
+            Node.NodeDiscovery.StartBeacon();
             await Node.CreateSessionsByPeersStorage();
         } 
 
