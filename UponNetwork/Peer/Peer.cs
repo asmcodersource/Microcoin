@@ -55,6 +55,7 @@ namespace Microcoin.Peer
             signer.Sign(message);
 
             Node.SendMessage(message.Serialize());
+            TransactionsPool.AddTransaction(transaction);
         }
 
         public void SendMinedBlock(Block block)

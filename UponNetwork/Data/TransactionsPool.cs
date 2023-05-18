@@ -36,8 +36,8 @@ namespace Microcoin.Data
 
                 decimal senderWalletCoins = PoolCoinsBalance[transaction.SenderWallet];
                 senderWalletCoins += Blockchain.CalculateWalletCoins(transaction.SenderWallet);
-                //if (senderWalletCoins < transaction.CoinsToSend)
-                //    return;
+                if (senderWalletCoins < transaction.CoinsToSend)
+                    return;
 
                 PoolCoinsBalance[transaction.SenderWallet] = -transaction.CoinsToSend;
                 if (PoolCoinsBalance.ContainsKey(transaction.ReceiverWallet) == false)
