@@ -8,6 +8,7 @@ using Microcoin.Crypto;
 using Microcoin.Data;
 using Microcoin.Settings;
 using Microcoin.Mining;
+using System.Transactions;
 
 namespace Microcoin.Peer
 {
@@ -41,7 +42,7 @@ namespace Microcoin.Peer
             message.ReceiverPublicKey = "";
             message.SenderPublicKey = ((CryptoKeys)CryptoKeys).PublicKeyXml;
 
-            Transaction transaction = new Transaction();
+            Microcoin.Data.Transaction transaction = new Microcoin.Data.Transaction();
             transaction.CoinsToSend = coinsCount;
             transaction.ReceiverWallet = receiverWallet;
             transaction.SenderWallet = ((CryptoKeys)CryptoKeys).PublicKeyXml;
@@ -51,6 +52,25 @@ namespace Microcoin.Peer
             Signer signer = new Signer();
             signer.SetKeys(CryptoKeys);
             signer.Sign(transaction);
+            signer.Sign(message);
+
+            Node.SendMessage(message.Serialize());
+        }
+
+        public void SendMinedBlock(Block block)
+        {
+            if (Node == null)
+                throw new ApplicationException("Peer is not initialized");
+
+            Message message = new Message();
+            message.MessageType = MessageType.NewBlockMined;
+            message.SendingTime = DateTime.UtcNow;
+            message.ReceiverPublicKey = "";
+            message.SenderPublicKey = ((CryptoKeys)CryptoKeys).PublicKeyXml;
+
+            message.MessageObject = block;
+            Signer signer = new Signer();
+            signer.SetKeys(CryptoKeys);
             signer.Sign(message);
 
             Node.SendMessage(message.Serialize());
@@ -128,11 +148,15 @@ namespace Microcoin.Peer
                 for (i = 0; i < 50; i++)
                     if ((hash[i / 8] & (i % 8)) != 0)
                         break;
-
-                Console.WriteLine("Mining complete!");
-                Console.WriteLine("Block creation time = " + block.CreationTime.ToShortTimeString());
-                Console.WriteLine("Complexity = " + i);
-                Blockchain.Blocks.Add(block);
+                
+                bool success = Blockchain.AppendBlockToChain(block);
+                if (success)
+                {
+                    SendMinedBlock(block);
+                    Console.WriteLine("Mining complete!");
+                    Console.WriteLine("Block creation time = " + block.CreationTime.ToShortTimeString());
+                    Console.WriteLine("Complexity = " + i);
+                }
             }
         }
     }

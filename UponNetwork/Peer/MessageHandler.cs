@@ -9,6 +9,7 @@ using Microcoin.UponNetwork.NetworkNode;
 using TcpNetwork;
 using Microcoin.Data;
 using System.Diagnostics;
+using Microcoin.Mining;
 
 namespace Microcoin.Peer
 {
@@ -42,9 +43,20 @@ namespace Microcoin.Peer
                         ParentPeer.TransactionsPool.AddTransaction((Transaction)message.MessageObject);
                         break;
                     case MessageType.NewBlockMined:
+                        Console.WriteLine("Some one mined block!");
                         if (message.MessageObject is not Block)
                             return;
-                        
+                        var block = (Block)message.MessageObject;
+                        if( ParentPeer.Blockchain.VerifyBlockAsEndOfChain(block))
+                        {
+                            Console.WriteLine("Block is correct to merge with current chain");
+                            var success = ParentPeer.Blockchain.AppendBlockToChain(block);
+                            if (success)
+                            {
+                                ParentPeer.Miner.CancelMiningSource.Cancel();
+                                Console.WriteLine("Block correctly merged");
+                            }
+                        }
                         break;
                     case MessageType.NopeMessage:
                         break;

@@ -26,13 +26,8 @@ namespace Microcoin.Data
 
             lock (this)
             {
-                ICryptoKeys cryptoKeys = new CryptoKeys();
-                cryptoKeys.InitializeByXml(transaction.SenderWallet);
-                IVerifier verifier = new Verifier();
-                verifier.SetKeys(cryptoKeys);
-
                 // Verify transaction for correct
-                if (verifier.Verify(transaction) == false || Transactions.Contains(transaction))
+                if (transaction.IsTransactionCorrect() == false || Transactions.Contains(transaction))
                     return;
 
 
@@ -41,8 +36,8 @@ namespace Microcoin.Data
 
                 decimal senderWalletCoins = PoolCoinsBalance[transaction.SenderWallet];
                 senderWalletCoins += Blockchain.CalculateWalletCoins(transaction.SenderWallet);
-                if (senderWalletCoins < transaction.CoinsToSend)
-                    return;
+                //if (senderWalletCoins < transaction.CoinsToSend)
+                //    return;
 
                 PoolCoinsBalance[transaction.SenderWallet] = -transaction.CoinsToSend;
                 if (PoolCoinsBalance.ContainsKey(transaction.ReceiverWallet) == false)

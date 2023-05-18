@@ -74,14 +74,58 @@ namespace Microcoin.Data
             block.PrewBlockHash = Convert.ToBase64String(prewBlock.BlockHash());
             block.CreationTime = DateTime.UtcNow;
             block.Id = Blocks.Count;
-            Blocks.Add(block);
 
             return block;
         }
 
-        public void CreateNewBlock(TransactionsPool transactionsPool)
+        public bool VerifyBlockAsEndOfChain(Block block)
         {
-            
+            lock (this)
+            {
+                if (block.Id != Blocks.Count)
+                    return false;
+
+                if (VerifyBlockTransactionsSings(block) == false)
+                    return false;
+                if (VerifySendersHaveRequiredCoins(block) == false)
+                    return false;   
+            }
+            return true;
+        }
+
+        public bool AppendBlockToChain(Block block)
+        {
+            lock (this)
+            {
+                if (block.Id != Blocks.Count)
+                    return false;
+
+                Blocks.Add(block);
+                return true;
+            }
+        }
+
+        protected bool VerifyBlockTransactionsSings(Block block)
+        {
+            foreach (Transaction transaction in block.Transactions)
+                if (transaction.IsTransactionCorrect() == false)
+                    return false;
+            return true;
+        }
+
+        protected bool VerifySendersHaveRequiredCoins(Block block)
+        {
+            Dictionary<string, decimal> sendersCoinsCount = new Dictionary<string, decimal>();
+            foreach (var t in block.Transactions)
+                sendersCoinsCount.Add(t.SenderWallet, -t.CoinsToSend);
+            foreach (var b in Blocks)
+                foreach (var t in b.Transactions)
+                    if (sendersCoinsCount.ContainsKey(t.ReceiverWallet))
+                        sendersCoinsCount[t.ReceiverWallet] += t.CoinsToSend;
+            foreach (var senderCoinsCount in sendersCoinsCount)
+                if (senderCoinsCount.Value < 0)
+                    return false;
+            return true;
         }
     }
 }

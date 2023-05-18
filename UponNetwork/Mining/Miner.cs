@@ -11,7 +11,7 @@ namespace Microcoin.Mining
     {
         public bool? IsMining { get; set; } = false;
         protected List<Task> MinerTasks { get; set; } = new List<Task>(); 
-        protected CancellationTokenSource CancelMiningSource { get; set; }
+        public CancellationTokenSource CancelMiningSource { get; set; }
         protected DateTime MiningStartTime { get; set; }
         public Block LastMiningBlock { get; protected set; }
 
@@ -25,15 +25,15 @@ namespace Microcoin.Mining
             MiningStartTime = startMiningTime;
             for ( int i = 0; i < Environment.ProcessorCount; i++ )
             {
-                var task = MineBlock(block.Clone(), IsMining);
+                var task = MineBlock(block.Clone(), CancelMiningSource.Token);
                 MinerTasks.Add(task);
             }
         }
 
-        public async Task MineBlock( Block targetBlock, bool? isMining )
+        public async Task MineBlock( Block targetBlock, CancellationToken cancellationToken  )
         {
             Random random = new Random();
-            while (CancelMiningSource.IsCancellationRequested == false && IsMining == true )
+            while (cancellationToken.IsCancellationRequested == false )
             {
                int complexity = CalculateComplexity(DateTime.UtcNow.Subtract(MiningStartTime).TotalMilliseconds);
                for ( int i = 0; i < 4096; i++)
@@ -47,14 +47,16 @@ namespace Microcoin.Mining
                         {
                             if (IsMining == false)
                                 return;
-                            IsMining = false;
+                            CancelMiningSource.Cancel();
                             MiningComplete?.Invoke(this, magikValue);
+                            IsMining = false;
                             return;
                         }
                     }
                 }
-               await Task.Yield();
+                await Task.Yield();
             }
+            IsMining = false;
         }
 
         public static bool VerifyHashComplexity(byte[] hash, int complexity)
