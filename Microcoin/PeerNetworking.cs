@@ -48,6 +48,7 @@ namespace Microcoin
             var messageDTO = new
             {
                 transaction = transaction,
+                application = "Microcoin",
                 type = "WalletTransaction"
             };
             var messageJson = Newtonsoft.Json.JsonConvert.SerializeObject(messageDTO);
@@ -59,6 +60,7 @@ namespace Microcoin
             var messageDTO = new
             {
                 block = block,
+                application = "Microcoin",
                 type = "ChainBlock"
             };
             var messageJson = Newtonsoft.Json.JsonConvert.SerializeObject(messageDTO);

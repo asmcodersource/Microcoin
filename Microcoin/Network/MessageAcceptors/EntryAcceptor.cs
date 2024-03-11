@@ -26,10 +26,10 @@ namespace Microcoin.Network.MessageAcceptors
                 return;
             switch (jsonRequestObject["type"]?.ToString())
             {
-                case "newTransaction":
+                case "WalletTransaction":
                     await TransactionsAcceptor.Handle(messageContext);
                     break;
-                case "minedBlock":
+                case "ChainBlock":
                     await BlocksAcceptor.Handle(messageContext);
                     break;
             }
