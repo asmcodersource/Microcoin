@@ -51,7 +51,7 @@ namespace Microcoin
             }
         }
 
-        public void TryStartMineBlock(IChain tailChain, IDeepTransactionsVerify deepTransactionsVerify)
+        public void TryStartMineBlock(AbstractChain tailChain, IDeepTransactionsVerify deepTransactionsVerify)
         {
             lock (this)
             {
@@ -66,7 +66,7 @@ namespace Microcoin
             }
         }
         
-        public void StartMineBlock(IChain tailChain, IDeepTransactionsVerify deepTransactionsVerify, CancellationToken cancellationToken)
+        public void StartMineBlock(AbstractChain tailChain, IDeepTransactionsVerify deepTransactionsVerify, CancellationToken cancellationToken)
         {
             var transactions = LinkedTransactionsPool.ClaimTailTransactions(tailChain, deepTransactionsVerify, MaxTransactionsPerBlock);
             if (transactions.Count == 0)
@@ -80,7 +80,7 @@ namespace Microcoin
         }
  
 
-        protected async Task MineBlock(IChain tailChain, Block block, IDeepTransactionsVerify deepTransactionsVerify, CancellationToken cancellationToken)
+        protected async Task MineBlock(AbstractChain tailChain, Block block, IDeepTransactionsVerify deepTransactionsVerify, CancellationToken cancellationToken)
         {
             try
             {

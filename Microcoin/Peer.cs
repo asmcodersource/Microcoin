@@ -20,7 +20,7 @@ namespace Microcoin
 
         public string WalletPublicKey { get { return PeerWalletKeys.TransactionSigner.SignOptions.PublicKey; } }
 
-        public Transaction CreateTransaction(String receiverPublicKey, decimal coinsCount)
+        public Transaction CreateTransaction(String receiverPublicKey, double coinsCount)
         {
             Transaction transaction = new Transaction();
             transaction.ReceiverPublicKey = receiverPublicKey;
@@ -29,7 +29,7 @@ namespace Microcoin
             return transaction;
         }
 
-        public  Transaction SendCoins(String receiverPublicKey, decimal coinsCount )
+        public  Transaction SendCoins(String receiverPublicKey, double coinsCount )
         {
             if (PeerNetworking == null || PeerWalletKeys == null)
                 throw new NullReferenceException("Peer is not initialized");

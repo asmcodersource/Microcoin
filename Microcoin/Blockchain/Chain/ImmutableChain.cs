@@ -6,21 +6,17 @@ using System.Threading.Tasks;
 
 namespace Microcoin.Blockchain.Chain
 {
-    public class ImmutableChain : IChain
+    [Serializable]
+    public class ImmutableChain : AbstractChain
     {
-        public HashSet<Transaction.Transaction> TransactionsSet { get; }
-        public Dictionary<string, decimal> WalletsCoins { get; }
-        public ImmutableChain? PreviousChain { get; }
-        public List<Block.Block> BlocksList { get; }
-        public Dictionary<string, Block.Block> BlocksDictionary { get; }
 
-        public ImmutableChain(Chain chain)
+        public ImmutableChain(AbstractChain chain)
         {
-            this.TransactionsSet = new HashSet<Transaction.Transaction>(chain.TransactionsSet);
-            this.WalletsCoins = new Dictionary<string, decimal>(chain.WalletsCoins);
-            this.PreviousChain = chain.PreviousChain;
-            this.BlocksList = new List<Block.Block>(chain.BlocksList);
-            this.BlocksDictionary = new Dictionary<string, Block.Block>(chain.BlocksDictionary);
+            TransactionsSet = new HashSet<Transaction.Transaction>(chain.TransactionsSet);
+            WalletsCoins = new Dictionary<string, double>(chain.WalletsCoins);
+            PreviousChain = chain.PreviousChain;
+            blocksList = new List<Block.Block>(chain.GetBlocksList());
+            BlocksDictionary = new Dictionary<string, Block.Block>(chain.BlocksDictionary);
         }
     }
 }

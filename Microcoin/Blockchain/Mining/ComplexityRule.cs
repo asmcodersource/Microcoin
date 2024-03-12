@@ -17,7 +17,7 @@ namespace Microcoin.Blockchain.Mining
         protected int allowedTimeDivitation = 3;
         protected int avgWindow = 10;
         
-        public int Calculate(IChain contextChain, Block.Block block)
+        public int Calculate(AbstractChain contextChain, Block.Block block)
         {
             var windowFirstBlock = contextChain.GetBlockFromTail(2048);
             var windowLastBlock = contextChain.GetBlockFromTail(0);
@@ -38,7 +38,7 @@ namespace Microcoin.Blockchain.Mining
             }
         }
 
-        public bool Verify(IChain contextChain, Block.Block block)
+        public bool Verify(AbstractChain contextChain, Block.Block block)
         {
             var complexity = Calculate(contextChain, block);
             if (block.MiningBlockInfo.Complexity < complexity)

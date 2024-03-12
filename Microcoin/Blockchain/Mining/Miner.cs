@@ -24,7 +24,7 @@ namespace Microcoin.Blockchain.Mining
         /// which will give him a huge increase in power against the background of other network members.
         /// Well, let's assume that everyone uses this version of the miner.
         /// </summary>
-        public async Task<string> StartBlockMining(IChain chain, Block.Block block, string minerWallet, CancellationToken cancellationToken)
+        public async Task<string> StartBlockMining(AbstractChain chain, Block.Block block, string minerWallet, CancellationToken cancellationToken)
         {
             // Get chain complexity, used to calculate chain complexity for new tail block
             int chainComplexity = 0;
@@ -41,7 +41,7 @@ namespace Microcoin.Blockchain.Mining
                 // Calculate block values by rules
                 int miningComplexity = MiningRules.ComplexityRule.Calculate(chain, block);
                 block.MiningBlockInfo.Complexity = miningComplexity;
-                decimal miningReward = MiningRules.RewardRule.Calculate(chain, block);
+                double miningReward = MiningRules.RewardRule.Calculate(chain, block);
                 block.MiningBlockInfo.MinerReward = miningReward;
                 block.MiningBlockInfo.ChainComplexity = miningComplexity + chainComplexity;
                 // To reduce count of complexity and reward recalculations
@@ -66,7 +66,7 @@ namespace Microcoin.Blockchain.Mining
             throw new Exception("Something wen't wrong");
         }
 
-        public bool VerifyBlockMining(IChain chain, Block.Block block)
+        public bool VerifyBlockMining(AbstractChain chain, Block.Block block)
         {
             var isBlockRewardCorrect = MiningRules.RewardRule.Verify(chain, block);
             if (isBlockRewardCorrect is not true)

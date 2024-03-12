@@ -9,22 +9,22 @@ namespace Microcoin.Blockchain.Mining
 {
     public class RewardRule : IRewardRule
     {
-        public decimal Calculate(IChain contextChain, Block.Block block)
+        public double Calculate(AbstractChain contextChain, Block.Block block)
         {
             return CalculateRewardOfBlock(block);
         }
 
-        public bool Verify(IChain contextChain, Block.Block block)
+        public bool Verify(AbstractChain contextChain, Block.Block block)
         {
-            decimal reward = CalculateRewardOfBlock(block);
+            double reward = CalculateRewardOfBlock(block);
             if (block.MiningBlockInfo.MinerReward != reward)
                 return false;
             return true;
         }
 
-        protected decimal CalculateRewardOfBlock(Block.Block block)
+        protected double CalculateRewardOfBlock(Block.Block block)
         {
-            return Convert.ToDecimal(block.MiningBlockInfo.Complexity * (1.0 / Convert.ToDouble(block.MiningBlockInfo.BlockId + 1)));
+            return block.MiningBlockInfo.Complexity * (1.0 / (block.MiningBlockInfo.BlockId + 1));
         }
     }
 }

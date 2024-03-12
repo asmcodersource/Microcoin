@@ -1,4 +1,8 @@
 ﻿using Microcoin;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Serialization;
+using System;
 
 
 Peer peer = new Peer();

@@ -11,14 +11,21 @@ namespace Microcoin.Blockchain.Chain
     /// A chain can be connected to the end of another chain. 
     /// A chain acting as a parent for another must be immutable
     /// </summary>
-    public interface IChain
+    [Serializable]
+    public abstract class AbstractChain
     {
-        public Dictionary<string, decimal> WalletsCoins { get; }
-        public ImmutableChain? PreviousChain { get; }
-        public List<Block.Block> BlocksList { get; }
-        public HashSet<Transaction.Transaction> TransactionsSet {  get; }
-        public Dictionary<string, Block.Block> BlocksDictionary { get; }
+        public Dictionary<string, double> WalletsCoins { get; protected set; }
+        public ImmutableChain? PreviousChain { get; protected set; }
+        public HashSet<Transaction.Transaction> TransactionsSet { get; protected set; }
+        public Dictionary<string, Block.Block> BlocksDictionary { get; protected set; }
+        protected List<Block.Block> blocksList { get; set; }
 
+        public Block.Block? GetBlockFromBegin(int blockIdFromBegin)
+        {
+            if (blocksList.Count <= blockIdFromBegin)
+                return null;
+            return blocksList[blockIdFromBegin];
+        }
 
         public Block.Block? GetBlockFromTail(int blockIdFromTail)
         {
@@ -33,29 +40,35 @@ namespace Microcoin.Blockchain.Chain
         public Block.Block? GetBlock(int blockId)
         {
             var currentChain = this;
-            if (currentChain.BlocksList.Count == 0)
+            if (currentChain.blocksList.Count() == 0)
                 return null;
             while (currentChain is not null)
             {
                 if (currentChain.GetLastBlock().MiningBlockInfo.BlockId > blockId)
                     if (currentChain.GetFirstBlock().MiningBlockInfo.BlockId <= blockId)
-                        return currentChain.BlocksList[blockId - currentChain.GetFirstBlock().MiningBlockInfo.BlockId];
+                        return currentChain.blocksList[blockId - currentChain.GetFirstBlock().MiningBlockInfo.BlockId];
                 currentChain = currentChain.PreviousChain;
             }
             return null;
         }
 
+        public List<Block.Block> GetBlocksList()
+            => blocksList;
+
+        public void SetBlockList(List<Block.Block> blockList)
+            => this.blocksList = blockList;
+
         public bool IsChainHasTransaction(Transaction.Transaction transaction)
             => TransactionsSet.Contains(transaction);
 
-        public decimal GetWalletCoins(string walletPublicKey)
+        public double GetWalletCoins(string walletPublicKey)
             => WalletsCoins.ContainsKey(walletPublicKey) ? WalletsCoins[walletPublicKey] : 0;
 
         public Block.Block? GetFirstBlock()
-            => BlocksList.Count() == 0 ? null : BlocksList.First();
+            => blocksList.Count() == 0 ? null : blocksList.First();
 
         public Block.Block? GetLastBlock() 
-            => BlocksList.Count() == 0 ? null : BlocksList.Last();
+            => blocksList.Count() == 0 ? null : blocksList.Last();
 
     }
 }

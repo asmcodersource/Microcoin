@@ -77,7 +77,7 @@ namespace Microcoin.Blockchain.ChainController
             }
         }
 
-        protected async Task<bool> DeepBlockVerify(Block.Block block, IChain chainTail, CancellationToken cancellationToken)
+        protected async Task<bool> DeepBlockVerify(Block.Block block, AbstractChain chainTail, CancellationToken cancellationToken)
         {
             // verify block is corret itself
             var isShortBlockValid = ShortBlockVerify(block, chainTail, cancellationToken);
@@ -90,7 +90,7 @@ namespace Microcoin.Blockchain.ChainController
             return true;
         } 
 
-        protected bool ShortBlockVerify(Block.Block block, IChain chainTail, CancellationToken cancellationToken)
+        protected bool ShortBlockVerify(Block.Block block, AbstractChain chainTail, CancellationToken cancellationToken)
         {
             lock (ChainTail)
             {

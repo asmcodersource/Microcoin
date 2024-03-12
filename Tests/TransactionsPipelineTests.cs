@@ -100,6 +100,19 @@ namespace Tests
             }
             return transactionTheories;
         }
+
+        public static List<Peer> CreateTestPeers(int peersListLength )
+        {
+            var peers = new List<Peer>();
+            for (int i = 0; i < peersListLength; i++)
+            {
+                var peer = new Peer();
+                peer.LoadOrCreateWalletKeys("NUL");
+                peer.InitializeAcceptancePools();
+                peers.Add(peer);
+            }
+            return peers;
+        }
     }
 
     public class TransactionsPipelineTests
@@ -110,19 +123,10 @@ namespace Tests
 
         public TransactionsPipelineTests()
         {
-            CreateTestPeers();
+            peers = TransactionTheory.CreateTestPeers(peersListLength);
         }
 
-        private void CreateTestPeers()
-        {
-            for( int i = 0; i < peersListLength; i++)
-            {
-                var peer = new Peer();
-                peer.LoadOrCreateWalletKeys("NUL");
-                peer.InitializeAcceptancePools();
-                peers.Add(peer);
-            }
-        }
+        
 
         private TransactionsPool CreateDefaultTransactionsPool()
         {

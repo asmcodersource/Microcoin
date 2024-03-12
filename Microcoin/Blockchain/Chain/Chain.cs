@@ -2,19 +2,22 @@
 
 namespace Microcoin.Blockchain.Chain
 {
-    public class Chain : IChain
+    [Serializable]
+    public class Chain : AbstractChain
     {
-        public HashSet<Transaction.Transaction> TransactionsSet { get; protected set; } = new HashSet<Transaction.Transaction>();
-        public Dictionary<string, decimal> WalletsCoins { get; protected set; } = new Dictionary<string, decimal>();
-        public ImmutableChain? PreviousChain { get; protected set; } = null;
-        public List<Block.Block> BlocksList { get; protected set; } = new List<Block.Block>();
-        public Dictionary<string, Block.Block> BlocksDictionary { get; protected set; } = new Dictionary<string, Block.Block>();
+        public Chain()
+        {
+            blocksList = new List<Block.Block>();
+            BlocksDictionary = new Dictionary<string, Block.Block>();
+            TransactionsSet = new HashSet<Transaction.Transaction>();
+            WalletsCoins = new Dictionary<string, double>();
+        }
 
         public void AddTailBlock(Block.Block block)
         {
             lock (this)
             {
-                BlocksList.Add(block);
+                blocksList.Add(block);
                 BlocksDictionary.Add(block.Hash, block);
                 CountTransactionsTransfers(block.Transactions);
                 CountMinerReward(block);

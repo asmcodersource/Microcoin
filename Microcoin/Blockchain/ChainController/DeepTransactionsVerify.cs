@@ -19,7 +19,7 @@ namespace Microcoin.Blockchain.ChainController
         //  Since this is a long operation, I use a cancel token in case it is no longer needed between complex operations.
         //  cancellationToken.ThrowIfCancellationRequested();
 
-        public async Task<bool> Verify(IChain chain, List<Transaction.Transaction> transactions, CancellationToken cancellationToken)
+        public async Task<bool> Verify(AbstractChain chain, List<Transaction.Transaction> transactions, CancellationToken cancellationToken)
         {
             var verifyTransferAmountsTask = VerifyTransferAmmounts(chain, transactions, cancellationToken);
             var verifyTransactionsDuplication = VerifyTransationUniqueness(chain, transactions, cancellationToken);
@@ -29,11 +29,11 @@ namespace Microcoin.Blockchain.ChainController
             return false;
         }
 
-        public async Task<bool> VerifyTransferAmmounts(IChain chain, List<Transaction.Transaction> transactions, CancellationToken cancellationToken)
+        public async Task<bool> VerifyTransferAmmounts(AbstractChain chain, List<Transaction.Transaction> transactions, CancellationToken cancellationToken)
         {
             // Count summary coins difference after this block
             cancellationToken.ThrowIfCancellationRequested();
-            Dictionary<string, decimal> tempCoinsCount = new Dictionary<string, decimal>();
+            Dictionary<string, double> tempCoinsCount = new Dictionary<string, double>();
             foreach (Transaction.Transaction transaction in transactions)
             {
                 if (tempCoinsCount.TryAdd(transaction.SenderPublicKey, -transaction.TransferAmount) is not true)
@@ -50,7 +50,7 @@ namespace Microcoin.Blockchain.ChainController
             return true;
         }
 
-        public async Task<bool> VerifyTransationUniqueness(IChain chain, List<Transaction.Transaction> transactions, CancellationToken cancellationToken)
+        public async Task<bool> VerifyTransationUniqueness(AbstractChain chain, List<Transaction.Transaction> transactions, CancellationToken cancellationToken)
         {
             // TODO:
             // I think I can do something better here.

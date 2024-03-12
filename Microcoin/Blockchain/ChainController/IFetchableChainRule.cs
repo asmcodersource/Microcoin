@@ -15,6 +15,6 @@ namespace Microcoin.Blockchain.ChainController
     /// </summary>
     public interface IFetchableChainRule
     {
-        public bool IsPossibleChainUpgrade(IChain chain, Block.Block block);
+        public bool IsPossibleChainUpgrade(AbstractChain chain, Block.Block block);
     }
 }

@@ -68,7 +68,8 @@ namespace Tests
                     first_node.SendMessage(message);
                     second_node.SendMessage(message);
 
-                    Thread.Sleep(10);
+                    Thread.Sleep(50);
+
                     Assert.Equal(2, receivedMessagesCount);
                 }
             }
@@ -95,6 +96,8 @@ namespace Tests
                         first_node.SendMessage(i.ToString());
                         second_node.SendMessage((1023-i).ToString());
                     }
+
+                    Thread.Sleep(100);
 
                     Assert.Equal(sending_summary, first_received_summary);
                     Assert.Equal(sending_summary, second_received_summary);

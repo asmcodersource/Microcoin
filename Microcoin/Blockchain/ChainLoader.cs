@@ -15,7 +15,7 @@ namespace Microcoin.Blockchain
     /// </summary>
     public class ChainLoader
     {
-        public event Action<IChain> ChainFetched;
+        public event Action<AbstractChain> ChainFetched;
 
         public void RequestChainFetch(Block.Block block)
         {

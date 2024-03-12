@@ -1,9 +1,9 @@
-﻿using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization;
+﻿using System.Text;
 using System.Security.Cryptography;
 using System.Text.Json;
 using Microcoin.Blockchain.Mining;
-using System.Numerics;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace Microcoin.Blockchain.Block
 {
@@ -20,11 +20,10 @@ namespace Microcoin.Blockchain.Block
         {
             using (SHA256 sha256Hash = SHA256.Create())
             {
-                var objectToHashStream = new MemoryStream();
-                IFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(objectToHashStream, MiningBlockInfo);
-                formatter.Serialize(objectToHashStream, Transactions);
-                byte[] hash = sha256Hash.ComputeHash(objectToHashStream.ToArray());
+                var temp1 = JsonSerializer.Serialize(Transactions);
+                var temp2 = JsonSerializer.Serialize(MiningBlockInfo);
+                var temp3 = Encoding.UTF8.GetBytes(temp1+temp2);
+                byte[] hash = sha256Hash.ComputeHash(temp3);
                 return Convert.ToBase64String(hash);
             }
         }

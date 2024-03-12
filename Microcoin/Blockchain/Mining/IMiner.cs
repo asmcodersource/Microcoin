@@ -12,7 +12,7 @@ namespace Microcoin.Blockchain.Mining
         public event Action<Block.Block, string> BlockMined;
         public MiningRules MiningRules { get; }
         
-        public void LinkBlockToChain(IChain chain, Block.Block block)
+        public void LinkBlockToChain(AbstractChain chain, Block.Block block)
         {
             var tailBlock = chain.GetLastBlock();
             if (tailBlock is not null)
@@ -23,7 +23,7 @@ namespace Microcoin.Blockchain.Mining
             else throw new Exception("Can't link to empty chain");
         }
 
-        public Task<string> StartBlockMining(IChain chain, Block.Block block, string minerWallet, CancellationToken cancellationToken);
-        public bool VerifyBlockMining(IChain chain, Block.Block block);
+        public Task<string> StartBlockMining(AbstractChain chain, Block.Block block, string minerWallet, CancellationToken cancellationToken);
+        public bool VerifyBlockMining(AbstractChain chain, Block.Block block);
     }
 }

@@ -5,7 +5,7 @@ namespace Microcoin.Blockchain.Transaction
     [Serializable]
     public class Transaction
     {
-        public decimal TransferAmount { get; set; }
+        public double TransferAmount { get; set; } = 0.0;
         public string SenderPublicKey { get; set; }
         public string ReceiverPublicKey { get; set; }
         public string Sign { get; set; }

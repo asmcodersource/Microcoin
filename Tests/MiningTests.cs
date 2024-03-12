@@ -60,7 +60,7 @@ namespace Tests
 
             // Create second block
             Block second_block = new Block();
-            second_block.Transactions.Add(first_peer.CreateTransaction(second_peer.WalletPublicKey, 1.5M));
+            second_block.Transactions.Add(first_peer.CreateTransaction(second_peer.WalletPublicKey, 1.5));
             (miner as IMiner).LinkBlockToChain(chain, second_block);
             var second_hash = miner.StartBlockMining(chain, second_block, first_peer.WalletPublicKey, CancellationToken.None).Result;
             second_block.Hash = second_hash;

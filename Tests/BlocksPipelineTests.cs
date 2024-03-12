@@ -1,9 +1,5 @@
-﻿using Microcoin.Blockchain.BlocksPool;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microcoin.Blockchain.Block;
+using Microcoin.Blockchain.BlocksPool;
 
 namespace Tests
 {
@@ -14,6 +10,25 @@ namespace Tests
         {
             BlocksPool blocksPool = new BlocksPool();
 
+        }
+
+        [Fact]
+        public void BlockPipeline_Hash_Test() 
+        {
+            // Same block have to has same hash
+            List<Peer> peers = TransactionTheory.CreateTestPeers(10);
+            var transactionsTheories = TransactionTheory.GetValidTransactionsTheories(peers, 10);
+            var block = new Block();
+            foreach (var transactionTheory in transactionsTheories)
+                block.Transactions.Add(transactionTheory.Transaction);
+            block.Hash = block.GetMiningBlockHash();
+            var firstHash = block.Hash;
+            block.Hash = block.GetMiningBlockHash();
+            block.Hash = block.GetMiningBlockHash();
+            block.Hash = block.GetMiningBlockHash();
+            block.Hash = block.GetMiningBlockHash();
+            var lastHash = block.Hash;
+            Assert.Equal(firstHash, block.Hash);
         }
     }
 }

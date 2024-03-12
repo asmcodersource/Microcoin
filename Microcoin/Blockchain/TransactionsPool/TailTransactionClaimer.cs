@@ -12,7 +12,7 @@ namespace Microcoin.Blockchain.TransactionsPool
     /// </summary>
     public static class TailTransactionsClaimer
     {
-        public static List<Transaction.Transaction> ClaimTailTransactions( this TransactionsPool transactionsPool, IChain chain, IDeepTransactionsVerify deepTransactionsVerify, int maxTransactionsCount)
+        public static List<Transaction.Transaction> ClaimTailTransactions( this TransactionsPool transactionsPool, AbstractChain chain, IDeepTransactionsVerify deepTransactionsVerify, int maxTransactionsCount)
         {
             var poolTransactions = transactionsPool.TakeTransactions();
             var blockTransactions = new List<Transaction.Transaction>();
