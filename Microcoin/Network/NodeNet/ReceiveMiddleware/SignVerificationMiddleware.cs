@@ -1,5 +1,4 @@
-﻿using Microcoin.Network.NodeNet;
-using Microcoin.Network.NodeNet.Message;
+﻿using Microcoin.Network.NodeNet.Message;
 
 
 namespace Microcoin.Network.NodeNet.ReceiveMiddleware

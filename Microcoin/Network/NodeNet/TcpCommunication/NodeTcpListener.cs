@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microcoin.Network.NodeNet.Communication;
+﻿using Microcoin.Network.NodeNet.Communication;
 using Microcoin.Network.NodeNet.NodeActions;
+using System.Net.Sockets;
 
 namespace Microcoin.Network.NodeNet.TcpCommunication
 {

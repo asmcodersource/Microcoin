@@ -1,12 +1,11 @@
 ﻿
+using Microcoin.Network.NodeNet.Communication;
+using Newtonsoft.Json;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using Newtonsoft.Json.Serialization;
-using Microcoin.Network.NodeNet.Communication;
-using Newtonsoft.Json;
 
 namespace Microcoin.Network.NodeNet.TcpCommunication
 {
@@ -84,7 +83,7 @@ namespace Microcoin.Network.NodeNet.TcpCommunication
 
         public async Task<byte[]> ReceiveRawData(CancellationToken cancellationToken)
         {
-            ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024*16]);
+            ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024 * 16]);
             try
             {
                 var size = await TcpClient.GetStream().ReadAsync(buffer, cancellationToken);

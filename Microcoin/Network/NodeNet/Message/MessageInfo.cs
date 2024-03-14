@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Microcoin.Network.NodeNet.Message
+﻿namespace Microcoin.Network.NodeNet.Message
 {
     // Main information about message
     // This part of message is signing by sender, and can't be change

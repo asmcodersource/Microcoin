@@ -1,6 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Xml;
-using Microcoin.RSAEncryptions;
 
 namespace Microcoin.RSAEncryptions
 {

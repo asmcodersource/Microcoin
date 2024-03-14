@@ -1,8 +1,7 @@
 using Microcoin.Network.NodeNet.Message;
 using Microcoin.RSAEncryptions;
-using Microcoin.Blockchain.Transaction;
 using Microcoin.Network.NodeNet;
-
+using Microcoin.Microcoin.Blockchain.Transaction;
 
 namespace Tests
 {

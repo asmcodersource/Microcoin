@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Linq.Expressions;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 
@@ -17,7 +15,7 @@ namespace Microcoin.JsonStreamParser
         protected Queue<JsonDocument> objectsQueue = new Queue<JsonDocument>();
         protected StringBuilder dataBuffer = new StringBuilder();
 
-        public JsonStreamParser(int bufferSize = 1024*16)
+        public JsonStreamParser(int bufferSize = 1024 * 16)
         {
             // bigger array faster parsing, but more space complexity
             readBuffer = new char[bufferSize];
@@ -54,14 +52,14 @@ namespace Microcoin.JsonStreamParser
 
         protected void ParsePart(char[] chars, int length)
         {
-            for( int  i = 0; i < length; i++ )
+            for (int i = 0; i < length; i++)
             {
                 // read each symbol, and add it to buffer
                 var symbol = chars[i];
                 dataBuffer.Append(symbol);
                 if (symbol != '}')
                     continue;
-                
+
                 // symbol is '}', then it can be end of json serialized object
                 try
                 {

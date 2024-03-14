@@ -1,8 +1,8 @@
-﻿using Microcoin.Network.NodeNet.TcpCommunication;
-using Microcoin.Network.NodeNet.ReceiveMiddleware;
-using Microcoin.Network.NodeNet.Communication;
-using Microcoin.Network.NodeNet.NodeActions;
+﻿using Microcoin.Network.NodeNet.Communication;
 using Microcoin.Network.NodeNet.Message;
+using Microcoin.Network.NodeNet.NodeActions;
+using Microcoin.Network.NodeNet.ReceiveMiddleware;
+using Microcoin.Network.NodeNet.TcpCommunication;
 using Microcoin.RSAEncryptions;
 
 namespace Microcoin.Network.NodeNet

@@ -1,7 +1,6 @@
-﻿using Microcoin.Network.NodeNet.Message;
-using Microcoin.Blockchain.Transaction;
+﻿using Microcoin.Blockchain.Transaction;
+using Microcoin.Network.NodeNet.Message;
 using Newtonsoft.Json.Linq;
-
 
 namespace Microcoin.Network.MessageAcceptors
 {

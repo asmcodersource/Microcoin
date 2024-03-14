@@ -1,6 +1,6 @@
-﻿using System.Runtime.Serialization.Formatters.Binary;
+﻿using Microcoin.RSAEncryptions;
 using System.Runtime.Serialization;
-using Microcoin.RSAEncryptions;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Microcoin.Network.NodeNet.Message
 {

@@ -1,6 +1,6 @@
 ﻿using Microcoin.Network.NodeNet.Message;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 
 namespace Microcoin.Network.NodeNet.ReceiveMiddleware
