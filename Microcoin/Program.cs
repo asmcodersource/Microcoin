@@ -1,4 +1,6 @@
 ﻿using Microcoin;
+using Microcoin.Network.NodeNet;
+using System.Text;
 
 Peer peer = new Peer();
 Console.Write("Initialize wallet keys...");

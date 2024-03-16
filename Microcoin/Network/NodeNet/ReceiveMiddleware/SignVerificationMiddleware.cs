@@ -18,8 +18,12 @@ namespace Microcoin.Network.NodeNet.ReceiveMiddleware
         public bool Invoke(MessageContext messageContext)
         {
             var validateOptions = Message.MessageValidator.GetReceiverValidateOptions(messageContext.Message);
-            MessageValidator.SetValidateOptions(validateOptions);
-            var signCorrect = MessageValidator.Validate(messageContext.Message);
+            bool signCorrect = false;
+            lock (this)
+            {
+                MessageValidator.SetValidateOptions(validateOptions);
+                signCorrect = MessageValidator.Validate(messageContext.Message);
+            }
             if (signCorrect)
                 return Next != null ? Next.Invoke(messageContext) : true;
             else

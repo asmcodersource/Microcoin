@@ -1,20 +1,21 @@
-﻿using Microcoin.Blockchain.Chain;
-using Microcoin.Blockchain.Mining;
+﻿using Chain;
+using Mining;
+using Microcoin.Microcoin.ChainFetcher;
 
-namespace Microcoin.Blockchain.ChainController
+namespace ChainController
 {
     public class ChainController
     {
         protected CancellationTokenSource currentChainOperationsCTS;
-        public event Action<Microcoin.Blockchain.Block.Block> ChainGetNextBlock;
-        public ChainLoader ChainLoader { get; protected set; }
-        public Microcoin.Blockchain.Chain.Chain ChainTail { get; protected set; }
+        public event Action<Block.Block> ChainGetNextBlock;
+        public ChainFetcher ChainLoader { get; protected set; }
+        public Chain.Chain ChainTail { get; protected set; }
         public IMiner Miner { get; protected set; }
         public INextBlockRule NextBlockRule { get; protected set; }
         public IDeepTransactionsVerify DeepTransactionsVerify { get; protected set; }
         public IFetchableChainRule FetchableChainRule { get; protected set; }
 
-        public ChainController(Microcoin.Blockchain.Chain.Chain chainTail, IMiner miner, ChainLoader chainLoader = null)
+        public ChainController(Chain.Chain chainTail, IMiner miner, ChainFetcher chainLoader = null)
         {
             // ChainControllers without chainLoader can't load chain from network
             // This is done to avoid loading threads inside loading threads.
@@ -31,7 +32,7 @@ namespace Microcoin.Blockchain.ChainController
             FetchableChainRule = new FetchableChainRule();
         }
 
-        public async Task<bool> AcceptBlock(Microcoin.Blockchain.Block.Block block)
+        public async Task<bool> AcceptBlock(Block.Block block)
         {
             CancellationToken cancellationToken = GetChainOperationCancellationToken();
             if (NextBlockRule.IsBlockNextToChain(block, ChainTail))
@@ -54,7 +55,7 @@ namespace Microcoin.Blockchain.ChainController
             return false;
         }
 
-        protected bool AddBlockToTail(Microcoin.Blockchain.Block.Block block)
+        protected bool AddBlockToTail(Block.Block block)
         {
             // lock used to avoid thread running
             // Only one block can be added as tail of chain
@@ -71,7 +72,7 @@ namespace Microcoin.Blockchain.ChainController
             }
         }
 
-        protected async Task<bool> DeepBlockVerify(Microcoin.Blockchain.Block.Block block, AbstractChain chainTail, CancellationToken cancellationToken)
+        protected async Task<bool> DeepBlockVerify(Block.Block block, AbstractChain chainTail, CancellationToken cancellationToken)
         {
             // verify block is corret itself
             var isShortBlockValid = ShortBlockVerify(block, chainTail, cancellationToken);
@@ -84,7 +85,7 @@ namespace Microcoin.Blockchain.ChainController
             return true;
         }
 
-        protected bool ShortBlockVerify(Microcoin.Blockchain.Block.Block block, AbstractChain chainTail, CancellationToken cancellationToken)
+        protected bool ShortBlockVerify(Block.Block block, AbstractChain chainTail, CancellationToken cancellationToken)
         {
             lock (ChainTail)
             {

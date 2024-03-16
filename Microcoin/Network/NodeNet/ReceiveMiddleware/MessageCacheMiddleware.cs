@@ -21,13 +21,17 @@ namespace Microcoin.Network.NodeNet.ReceiveMiddleware
             {
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
+ 
                     IFormatter formatter = new BinaryFormatter();
                     formatter.Serialize(memoryStream, messageContext.Message.Info);
                     formatter.Serialize(memoryStream, messageContext.Message.Data);
                     var hash = sha512.ComputeHash(memoryStream.ToArray());
-                    if (hashTree.Contains(hash))
-                        return false;
-                    hashTree.Add(hash);
+                    lock (this)
+                    {
+                        if (hashTree.Contains(hash))
+                            return false;
+                        hashTree.Add(hash);
+                    }
                     hashCountCounter++;
                     if (hashCountCounter > MessageStorageSize)
                     {

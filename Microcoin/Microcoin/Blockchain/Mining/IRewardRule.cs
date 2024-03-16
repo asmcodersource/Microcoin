@@ -1,10 +1,10 @@
-﻿using Microcoin.Blockchain.Chain;
+﻿using Chain;
 
-namespace Microcoin.Blockchain.Mining
+namespace Mining
 {
     public interface IRewardRule
     {
-        public bool Verify(AbstractChain contextChain, Microcoin.Blockchain.Block.Block block);
-        public double Calculate(AbstractChain contextChain, Microcoin.Blockchain.Block.Block block);
+        public bool Verify(AbstractChain contextChain, Block.Block block);
+        public double Calculate(AbstractChain contextChain, Block.Block block);
     }
 }

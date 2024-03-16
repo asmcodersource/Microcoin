@@ -1,21 +1,21 @@
 ﻿using Microcoin.PipelineHandling;
 
-namespace Microcoin.Blockchain.TransactionsPool
+namespace TransactionsPool
 {
     public class TransactionsPool
     {
         public event Action<TransactionsPool> OnTransactionReceived;
-        public List<Microcoin.Blockchain.Transaction.Transaction> Pool { get; protected set; } = new List<Microcoin.Blockchain.Transaction.Transaction>();
-        public HashSet<Microcoin.Blockchain.Transaction.Transaction> PresentedTransactions { get; protected set; } = new HashSet<Microcoin.Blockchain.Transaction.Transaction>();
-        public IHandlePipeline<Microcoin.Blockchain.Transaction.Transaction> HandlePipeline { get; set; } = new EmptyPipeline<Microcoin.Blockchain.Transaction.Transaction>();
+        public List<Transaction.Transaction> Pool { get; protected set; } = new List<Transaction.Transaction>();
+        public HashSet<Transaction.Transaction> PresentedTransactions { get; protected set; } = new HashSet<Transaction.Transaction>();
+        public IHandlePipeline<Transaction.Transaction> HandlePipeline { get; set; } = new EmptyPipeline<Transaction.Transaction>();
 
-        public List<Microcoin.Blockchain.Transaction.Transaction> TakeTransactions()
+        public List<Transaction.Transaction> TakeTransactions()
         {
             var transactions = Pool.ToList();
             return transactions;
         }
 
-        public void RemoveTransactions(List<Microcoin.Blockchain.Transaction.Transaction> removeTransactions)
+        public void RemoveTransactions(List<Transaction.Transaction> removeTransactions)
         {
             // Some transaction can be expired after some events
             // ( for example being include in some block already )
@@ -24,7 +24,7 @@ namespace Microcoin.Blockchain.TransactionsPool
                 RemoveTransaction(transaction);
         }
 
-        public async Task<bool> HandleTransaction(Microcoin.Blockchain.Transaction.Transaction transaction)
+        public async Task<bool> HandleTransaction(Transaction.Transaction transaction)
         {
             // Handle transaction on verifing pipeline
             var handleResult = await Task.Run(() => HandlePipeline.Handle(transaction));
@@ -37,13 +37,13 @@ namespace Microcoin.Blockchain.TransactionsPool
 
         public void InitializeHandlerPipeline()
         {
-            HandlePipeline = new HandlePipeline<Microcoin.Blockchain.Transaction.Transaction>();
+            HandlePipeline = new HandlePipeline<Transaction.Transaction>();
             HandlePipeline.AddHandlerToPipeline(new VerifyTransactionSign());
             HandlePipeline.AddHandlerToPipeline(new VerifyTransactionFields());
             HandlePipeline.AddHandlerToPipeline(new VerifyTransactionDuplication());
         }
 
-        protected void AddTransaction(Microcoin.Blockchain.Transaction.Transaction transaction)
+        protected void AddTransaction(Transaction.Transaction transaction)
         {
             lock (this)
             {
@@ -55,7 +55,7 @@ namespace Microcoin.Blockchain.TransactionsPool
             }
         }
 
-        protected void RemoveTransaction(Microcoin.Blockchain.Transaction.Transaction transaction)
+        protected void RemoveTransaction(Transaction.Transaction transaction)
         {
             lock (this)
             {

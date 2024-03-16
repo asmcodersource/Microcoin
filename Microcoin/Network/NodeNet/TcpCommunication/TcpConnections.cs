@@ -2,18 +2,20 @@
 
 namespace Microcoin.Network.NodeNet.TcpCommunication
 {
-    public class TcpCommunication : INodeConnections
+    public class TcpConnections : INodeConnections
     {
         List<INodeConnection> nodeHttpConnections = new List<INodeConnection>();
 
         public void AddConnection(INodeConnection connection)
         {
-            nodeHttpConnections.Add(connection);
+            lock(nodeHttpConnections) 
+                nodeHttpConnections.Add(connection);
         }
 
         public void RemoveConnection(INodeConnection connection)
         {
-            nodeHttpConnections.Remove(connection);
+            lock (nodeHttpConnections)
+                nodeHttpConnections.Remove(connection);
         }
 
         public List<INodeConnection> Connections()

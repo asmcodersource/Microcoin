@@ -1,6 +1,4 @@
-﻿using Microcoin.Blockchain.Block;
-using Microcoin.Microcoin;
-using Microcoin.Microcoin.Blockchain.BlocksPool;
+﻿using BlocksPool;
 
 namespace Tests
 {
@@ -9,7 +7,7 @@ namespace Tests
         [Fact]
         public void BlocksPipeline_ValidBlocks_Test()
         {
-            BlocksPool blocksPool = new BlocksPool();
+            BlocksPool.BlocksPool blocksPool = new BlocksPool.BlocksPool();
 
         }
 
@@ -19,7 +17,7 @@ namespace Tests
             // Same block have to has same hash
             List<Peer> peers = TransactionTheory.CreateTestPeers(10);
             var transactionsTheories = TransactionTheory.GetValidTransactionsTheories(peers, 10);
-            var block = new Block();
+            var block = new Block.Block();
             foreach (var transactionTheory in transactionsTheories)
                 block.Transactions.Add(transactionTheory.Transaction);
             block.Hash = block.GetMiningBlockHash();

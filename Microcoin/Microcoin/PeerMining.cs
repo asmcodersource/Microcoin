@@ -1,23 +1,23 @@
-﻿using Microcoin.Blockchain.Block;
-using Microcoin.Blockchain.Chain;
-using Microcoin.Blockchain.ChainController;
-using Microcoin.Blockchain.Mining;
-using Microcoin.Blockchain.TransactionsPool;
+﻿using Block;
+using Chain;
+using ChainController;
+using Mining;
+using TransactionsPool;
 
 namespace Microcoin
 {
     public class PeerMining
     {
-        public event Action<Block> BlockMined;
+        public event Action<Block.Block> BlockMined;
         protected Task? MiningTask;
         protected CancellationTokenSource? MiningCancellationTokenSource;
         public int MaxTransactionsPerBlock { get; set; } = 512;
         public IMiner Miner { get; protected set; }
-        public TransactionsPool LinkedTransactionsPool { get; protected set; }
+        public TransactionsPool.TransactionsPool LinkedTransactionsPool { get; protected set; }
         public bool IsMiningEnabled { get; protected set; } = false;
         public string MinerWaller { get; set; }
 
-        public void InizializeMiner(IMiner miner, string minerWallet, TransactionsPool transactionsPool)
+        public void InizializeMiner(IMiner miner, string minerWallet, TransactionsPool.TransactionsPool transactionsPool)
         {
             Miner = miner;
             MinerWaller = minerWallet;
@@ -70,7 +70,7 @@ namespace Microcoin
             var transactions = LinkedTransactionsPool.ClaimTailTransactions(tailChain, deepTransactionsVerify, MaxTransactionsPerBlock);
             if (transactions.Count == 0)
                 return;
-            Block block = new Block();
+            Block.Block block = new Block.Block();
             block.MiningBlockInfo = new MiningBlockInfo();
             block.Transactions = transactions;
             Miner.LinkBlockToChain(tailChain, block);
@@ -79,7 +79,7 @@ namespace Microcoin
         }
 
 
-        protected async Task MineBlock(AbstractChain tailChain, Block block, IDeepTransactionsVerify deepTransactionsVerify, CancellationToken cancellationToken)
+        protected async Task MineBlock(AbstractChain tailChain, Block.Block block, IDeepTransactionsVerify deepTransactionsVerify, CancellationToken cancellationToken)
         {
             try
             {

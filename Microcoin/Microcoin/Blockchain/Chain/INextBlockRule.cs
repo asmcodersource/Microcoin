@@ -1,4 +1,4 @@
-﻿namespace Microcoin.Blockchain.Chain
+﻿namespace Chain
 {
     /// <summary>
     /// To attach a block, you need to determine whether this block can be a continuation of the chain. 
@@ -6,6 +6,6 @@
     /// </summary>
     public interface INextBlockRule
     {
-        public bool IsBlockNextToChain(Microcoin.Blockchain.Block.Block block, AbstractChain chain);
+        public bool IsBlockNextToChain(Block.Block block, AbstractChain chain);
     }
 }

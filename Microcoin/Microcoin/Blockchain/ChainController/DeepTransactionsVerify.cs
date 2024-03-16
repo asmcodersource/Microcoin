@@ -1,6 +1,6 @@
-﻿using Microcoin.Blockchain.Chain;
+﻿using Chain;
 
-namespace Microcoin.Blockchain.ChainController
+namespace ChainController
 {
     public class DeepTransactionsVerify : IDeepTransactionsVerify
     {

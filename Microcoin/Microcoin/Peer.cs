@@ -1,17 +1,14 @@
-﻿using Microcoin.Blockchain.Block;
-using Microcoin.Blockchain.BlocksPool;
-using Microcoin.Blockchain.ChainController;
-using Microcoin.Blockchain.Mining;
-using Microcoin.Blockchain.Transaction;
-using Microcoin.Blockchain.TransactionsPool;
+﻿using ChainController;
+using Mining;
+
 
 namespace Microcoin
 {
     public class Peer
     {
-        public BlocksPool BlocksPool { get; protected set; } = new BlocksPool();
-        public ChainController ChainController { get; protected set; }
-        public TransactionsPool TransactionsPool { get; protected set; } = new TransactionsPool();
+        public BlocksPool.BlocksPool BlocksPool { get; protected set; } = new BlocksPool.BlocksPool();
+        public ChainController.ChainController ChainController { get; protected set; }
+        public TransactionsPool.TransactionsPool TransactionsPool { get; protected set; } = new TransactionsPool.TransactionsPool();
         public PeerNetworking PeerNetworking { get; protected set; }
         public PeerWalletKeys PeerWalletKeys { get; protected set; }
         public PeerMining PeerMining { get; protected set; }
@@ -19,16 +16,16 @@ namespace Microcoin
 
         public string WalletPublicKey { get { return PeerWalletKeys.TransactionSigner.SignOptions.PublicKey; } }
 
-        public Transaction CreateTransaction(string receiverPublicKey, double coinsCount)
+        public Transaction.Transaction CreateTransaction(string receiverPublicKey, double coinsCount)
         {
-            Transaction transaction = new Transaction();
+            Transaction.Transaction transaction = new Transaction.Transaction();
             transaction.ReceiverPublicKey = receiverPublicKey;
             transaction.TransferAmount = coinsCount;
             PeerWalletKeys.SignTransaction(transaction);
             return transaction;
         }
 
-        public Transaction SendCoins(string receiverPublicKey, double coinsCount)
+        public Transaction.Transaction SendCoins(string receiverPublicKey, double coinsCount)
         {
             if (PeerNetworking == null || PeerWalletKeys == null)
                 throw new NullReferenceException("Peer is not initialized");
@@ -85,7 +82,7 @@ namespace Microcoin
             }
         }
 
-        protected void BlockMinedHandler(Block block)
+        protected void BlockMinedHandler(Block.Block block)
         {
             BlocksPool.HandleBlock(block).Wait();
             PeerNetworking.SendBlockToNetwork(block);

@@ -1,4 +1,4 @@
-﻿using Microcoin.Blockchain.Transaction;
+﻿using Transaction;
 using System.Xml.Serialization;
 
 namespace Microcoin
@@ -41,7 +41,7 @@ namespace Microcoin
             }
         }
 
-        public void SignTransaction(Transaction transaction)
+        public void SignTransaction(Transaction.Transaction transaction)
         {
             if (TransactionSigner == null)
                 throw new NullReferenceException("Keys is not initialized");

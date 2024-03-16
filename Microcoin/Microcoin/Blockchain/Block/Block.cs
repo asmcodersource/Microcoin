@@ -1,9 +1,9 @@
-﻿using Microcoin.Blockchain.Mining;
+﻿using Mining;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace Microcoin.Blockchain.Block
+namespace Block
 {
     [Serializable]
     public class Block

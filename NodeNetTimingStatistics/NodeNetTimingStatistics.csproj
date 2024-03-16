@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tests\Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microcoin">
+      <HintPath>..\Microcoin\bin\Release\net6.0\Microcoin.dll</HintPath>
+    </Reference>
+    <Reference Include="Tests">
+      <HintPath>..\Tests\bin\Release\net6.0\Tests.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

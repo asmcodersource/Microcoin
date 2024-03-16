@@ -1,5 +1,5 @@
-﻿using Microcoin.Blockchain.Block;
-using Microcoin.Blockchain.Transaction;
+﻿using Block;
+using Transaction;
 using Microcoin.Network.MessageAcceptors;
 using Microcoin.Network.NodeNet;
 using Microcoin.Network.NodeNet.TcpCommunication;
@@ -14,8 +14,8 @@ namespace Microcoin
         public BlocksAcceptor BlocksAcceptor { get; protected set; }
         public TransactionsAcceptor TransactionsAcceptor { get; protected set; }
 
-        public event Action<Microcoin.Blockchain.Block.Block> BlockReceived;
-        public event Action<Microcoin.Blockchain.Transaction.Transaction> TransactionReceived;
+        public event Action<Block.Block> BlockReceived;
+        public event Action<Transaction.Transaction> TransactionReceived;
 
         public virtual void CreateDefaultRouting()
         {
@@ -43,7 +43,7 @@ namespace Microcoin
             NetworkNode.NetworkExplorer.SaveRecentConnectionsToFile("knownPeers.json");
         }
 
-        public void SendTransactionToNetwork(Transaction transaction)
+        public void SendTransactionToNetwork(Transaction.Transaction transaction)
         {
             var messageDTO = new
             {
@@ -55,7 +55,7 @@ namespace Microcoin
             NetworkNode.SendMessage(messageJson);
         }
 
-        public void SendBlockToNetwork(Block block)
+        public void SendBlockToNetwork(Block.Block block)
         {
             var messageDTO = new
             {

@@ -1,6 +1,6 @@
-﻿using Microcoin.Blockchain.Chain;
+﻿using Chain;
 
-namespace Microcoin.Blockchain.Mining
+namespace Mining
 {
     /// <summary>
     /// This rule determines the difficulty of the next block. 
@@ -16,7 +16,7 @@ namespace Microcoin.Blockchain.Mining
         protected int allowedTimeDivitation = 3;
         protected int avgWindow = 10;
 
-        public int Calculate(AbstractChain contextChain, Microcoin.Blockchain.Block.Block block)
+        public int Calculate(AbstractChain contextChain, Block.Block block)
         {
             var windowFirstBlock = contextChain.GetBlockFromTail(2048);
             var windowLastBlock = contextChain.GetBlockFromTail(0);
@@ -37,7 +37,7 @@ namespace Microcoin.Blockchain.Mining
             }
         }
 
-        public bool Verify(AbstractChain contextChain, Microcoin.Blockchain.Block.Block block)
+        public bool Verify(AbstractChain contextChain, Block.Block block)
         {
             var complexity = Calculate(contextChain, block);
             if (block.MiningBlockInfo.Complexity < complexity)

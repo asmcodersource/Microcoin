@@ -2,6 +2,6 @@
 {
     public interface INodeSender
     {
-        public void SendMessage(Message.Message message);
+        public Task SendMessage(Message.Message message);
     }
 }

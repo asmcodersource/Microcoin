@@ -1,11 +1,6 @@
 ﻿using Microcoin.Network.NodeNet;
 using Microcoin.RSAEncryptions;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Tests.NodeNetNetworkConnections;
 
 namespace Tests
 {
@@ -103,6 +98,57 @@ namespace Tests
                     Assert.Equal(sending_summary, second_received_summary);
                 }
             }
+        }
+
+
+        [Fact]
+        public void NodeNet_Communcations_Messaging_NetworkTest()
+        {
+            lock (wallLock)
+            {
+                // Create for test performing
+                var nodeNetNetworkConnections = NodeNetNetworkConnections.NodeNetNetworkConnections.Shared;
+
+                // Verifies that data passes through the network from sender to recipient
+                List<Task> tasks = new List<Task>();
+                for (int i = 0; i < 100; i++)
+                {
+                    var firstPeer = nodeNetNetworkConnections.GetRandomNode();
+                    var secondPeer = nodeNetNetworkConnections.GetRandomNode();
+                    if (firstPeer == secondPeer)
+                    {
+                        i--;
+                        continue;
+                    }
+                    var task = Task.Run(() => TestBroadcastConnectionBetweenNodes(firstPeer, secondPeer));
+                    tasks.Add(task);
+                }
+                Task.WhenAll(tasks).Wait();
+            }
+        }
+
+        protected void TestBroadcastConnectionBetweenNodes(Node first_node, Node second_node)
+        {
+            object atomicLock = new object();
+            string message = Random.Shared.Next().ToString();
+            int receivedMessagesCount = 0;
+            second_node.PersonalMessageReceived += (msgContext) =>
+            {
+                if (msgContext.Message.Data == message)
+                    lock (atomicLock)
+                        receivedMessagesCount |= 1;
+            };
+            first_node.PersonalMessageReceived += (msgContext) =>
+            {
+                if (msgContext.Message.Data == message)
+                    lock (atomicLock)
+                        receivedMessagesCount |= 2;
+            };
+
+            first_node.SendMessage(message, second_node.SignOptions.PublicKey).Wait();
+            second_node.SendMessage(message, first_node.SignOptions.PublicKey).Wait();
+            Task.Delay(15000).Wait();
+            Assert.Equal(3, receivedMessagesCount);
         }
     }
 }

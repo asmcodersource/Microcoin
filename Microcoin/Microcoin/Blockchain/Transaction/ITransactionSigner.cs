@@ -1,6 +1,6 @@
 ﻿using Microcoin.RSAEncryptions;
 
-namespace Microcoin.Blockchain.Transaction
+namespace Transaction
 {
     public interface ITransactionSigner
     {

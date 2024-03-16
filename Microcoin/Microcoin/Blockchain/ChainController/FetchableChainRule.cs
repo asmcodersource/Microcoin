@@ -1,10 +1,10 @@
-﻿using Microcoin.Blockchain.Chain;
+﻿using Chain;
 
-namespace Microcoin.Blockchain.ChainController
+namespace ChainController
 {
     public class FetchableChainRule : IFetchableChainRule
     {
-        public bool IsPossibleChainUpgrade(AbstractChain chain, Microcoin.Blockchain.Block.Block block)
+        public bool IsPossibleChainUpgrade(AbstractChain chain, Block.Block block)
         {
             // Chain length is bad reson for swithing to another chain
             //    The most expected example of an attack in such a case is the creation of a large number of blocks

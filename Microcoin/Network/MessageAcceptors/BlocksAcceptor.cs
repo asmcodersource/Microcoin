@@ -5,7 +5,7 @@ namespace Microcoin.Network.MessageAcceptors
 {
     public class BlocksAcceptor : IAcceptor
     {
-        public event Action<Microcoin.Blockchain.Block.Block> BlockReceived;
+        public event Action<Block.Block> BlockReceived;
 
         public virtual async Task Handle(MessageContext messageContext)
         {
@@ -14,7 +14,7 @@ namespace Microcoin.Network.MessageAcceptors
             if (jsonBlockToken is null)
                 return;
             string blockJsonString = jsonBlockToken.ToString();
-            Microcoin.Blockchain.Block.Block? block = Microcoin.Blockchain.Block.Block.ParseBlockFromJson(blockJsonString);
+            Block.Block? block = Block.Block.ParseBlockFromJson(blockJsonString);
             if (block != null)
                 BlockReceived?.Invoke(block);
         }

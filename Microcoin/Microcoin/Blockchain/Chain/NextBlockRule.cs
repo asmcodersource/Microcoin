@@ -1,8 +1,8 @@
-﻿namespace Microcoin.Blockchain.Chain
+﻿namespace Chain
 {
     public class NextBlockRule : INextBlockRule
     {
-        public bool IsBlockNextToChain(Microcoin.Blockchain.Block.Block block, AbstractChain chain)
+        public bool IsBlockNextToChain(Block.Block block, AbstractChain chain)
         {
             var currentTailBlock = chain.GetLastBlock();
             if (currentTailBlock.MiningBlockInfo.BlockId + 1 != block.MiningBlockInfo.BlockId)

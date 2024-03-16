@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microcoin.Microcoin;
-using Microcoin.Microcoin.Blockchain.Transaction;
-using Microcoin.Microcoin.Blockchain.TransactionsPool;
+﻿using System.Text;
 
 namespace Tests
 {
@@ -20,10 +13,10 @@ namespace Tests
     public class TransactionTheory
     {
         public string WrongType { get; set; } = "None";
-        public readonly Transaction Transaction;
+        public readonly Transaction.Transaction Transaction;
         public readonly bool IsTransactionValid;
 
-        public TransactionTheory(Transaction transaction, bool isTransactionValid)
+        public TransactionTheory(Transaction.Transaction transaction, bool isTransactionValid)
         {
             Transaction = transaction;
             IsTransactionValid = isTransactionValid;
@@ -128,10 +121,10 @@ namespace Tests
 
         
 
-        private TransactionsPool CreateDefaultTransactionsPool()
+        private TransactionsPool.TransactionsPool CreateDefaultTransactionsPool()
         {
             // Create default transactions pool
-            TransactionsPool transactionsPool = new TransactionsPool();
+            TransactionsPool.TransactionsPool transactionsPool = new TransactionsPool.TransactionsPool();
             transactionsPool.InitializeHandlerPipeline();
             return transactionsPool;
         }

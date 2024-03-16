@@ -1,7 +1,7 @@
-﻿using Microcoin.Blockchain.Chain;
-using Microcoin.Blockchain.ChainController;
+﻿using Chain;
+using ChainController;
 
-namespace Microcoin.Blockchain.TransactionsPool
+namespace TransactionsPool
 {
     /// <summary>
     /// To create a new block and start mining it, you need to get the transactions of this block. 
@@ -12,11 +12,11 @@ namespace Microcoin.Blockchain.TransactionsPool
     /// </summary>
     public static class TailTransactionsClaimer
     {
-        public static List<Microcoin.Blockchain.Transaction.Transaction> ClaimTailTransactions(this TransactionsPool transactionsPool, AbstractChain chain, IDeepTransactionsVerify deepTransactionsVerify, int maxTransactionsCount)
+        public static List<Transaction.Transaction> ClaimTailTransactions(this TransactionsPool transactionsPool, AbstractChain chain, IDeepTransactionsVerify deepTransactionsVerify, int maxTransactionsCount)
         {
             var poolTransactions = transactionsPool.TakeTransactions();
-            var blockTransactions = new List<Microcoin.Blockchain.Transaction.Transaction>();
-            var removeTransations = new List<Microcoin.Blockchain.Transaction.Transaction>();
+            var blockTransactions = new List<Transaction.Transaction>();
+            var removeTransations = new List<Transaction.Transaction>();
             foreach (var transaction in poolTransactions)
             {
                 if (blockTransactions.Count > maxTransactionsCount)

@@ -1,5 +1,5 @@
-﻿using Microcoin.Blockchain.Block;
-using Microcoin.Blockchain.Chain;
+﻿using Block;
+using Chain;
 using System.Text.Json;
 
 namespace Microcoin.ChainsIO
@@ -12,11 +12,11 @@ namespace Microcoin.ChainsIO
             var chainHeader = (await jsonStreamParser.ParseJsonObject(stream, cancellationToken)).Deserialize<ChainHeader>();
             if (chainHeader is null)
                 throw new Exception("Deserialized object has wrong type, must be 'Chain'");
-            var blocksList = new List<Block>();
-            var chain = new Chain();
+            var blocksList = new List<Block.Block>();
+            var chain = new Chain.Chain();
             for (int i = 0; i < chainHeader.BlocksCount; i++)
             {
-                var chainBlock = (await jsonStreamParser.ParseJsonObject(stream, cancellationToken)).Deserialize<Block>();
+                var chainBlock = (await jsonStreamParser.ParseJsonObject(stream, cancellationToken)).Deserialize<Block.Block>();
                 if (chainBlock is null)
                     throw new Exception("Deserialized object has wrong type, must be 'Block'");
                 chain.AddTailBlock(chainBlock);

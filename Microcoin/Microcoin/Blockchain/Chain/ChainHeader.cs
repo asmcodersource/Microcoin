@@ -1,4 +1,4 @@
-﻿namespace Microcoin.Blockchain.Chain
+﻿namespace Chain
 {
     [Serializable]
     public class ChainHeader

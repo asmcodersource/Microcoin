@@ -1,6 +1,6 @@
 ﻿using Microcoin.PipelineHandling;
 
-namespace Microcoin.Blockchain.BlocksPool
+namespace BlocksPool
 {
     public class VerifyBlockFields : IPipelineHandler<Block.Block>
     {

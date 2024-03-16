@@ -1,7 +1,4 @@
-﻿using Microcoin.Blockchain.Block;
-using Microcoin.Microcoin;
-using Microcoin.Microcoin.Blockchain.Chain;
-using Microcoin.Microcoin.ChainsIO;
+﻿using Microcoin.ChainsIO;
 
 namespace Tests
 {
@@ -13,12 +10,12 @@ namespace Tests
             Stream stream = new MemoryStream(1024 * 1024 * 1024);
 
             // Create some chain with fake blocks
-            Chain chain = new Chain();
+            Chain.Chain chain = new Chain.Chain();
             List<Peer> peers = TransactionTheory.CreateTestPeers(10);
             for (int i = 0; i < 1; i++)
             {
                 var transactionsTheories = TransactionTheory.GetValidTransactionsTheories(peers, 10);
-                var block = new Block();
+                var block = new Block.Block();
                 foreach(var transactionTheory in transactionsTheories)
                     block.Transactions.Add(transactionTheory.Transaction);
                 block.Hash = block.GetMiningBlockHash();

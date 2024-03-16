@@ -1,17 +1,17 @@
-﻿namespace Microcoin.Blockchain.Chain
+﻿namespace Chain
 {
     [Serializable]
     public class Chain : AbstractChain
     {
         public Chain()
         {
-            blocksList = new List<Microcoin.Blockchain.Block.Block>();
-            BlocksDictionary = new Dictionary<string, Microcoin.Blockchain.Block.Block>();
+            blocksList = new List<Block.Block>();
+            BlocksDictionary = new Dictionary<string, Block.Block>();
             TransactionsSet = new HashSet<Transaction.Transaction>();
             WalletsCoins = new Dictionary<string, double>();
         }
 
-        public void AddTailBlock(Microcoin.Blockchain.Block.Block block)
+        public void AddTailBlock(Block.Block block)
         {
             lock (this)
             {
@@ -22,7 +22,7 @@
             }
         }
 
-        protected void CountMinerReward(Microcoin.Blockchain.Block.Block block)
+        protected void CountMinerReward(Block.Block block)
         {
             if (WalletsCoins.TryAdd(block.MiningBlockInfo.MinerPublicKey, block.MiningBlockInfo.MinerReward) is not true)
                 WalletsCoins[block.MiningBlockInfo.MinerPublicKey] += block.MiningBlockInfo.MinerReward;

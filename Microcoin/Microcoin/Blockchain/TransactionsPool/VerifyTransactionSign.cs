@@ -1,13 +1,13 @@
-﻿using Microcoin.Blockchain.Transaction;
+﻿using Transaction;
 using Microcoin.PipelineHandling;
 using Microcoin.RSAEncryptions;
 
 
-namespace Microcoin.Blockchain.TransactionsPool
+namespace TransactionsPool
 {
-    public class VerifyTransactionSign : IPipelineHandler<Microcoin.Blockchain.Transaction.Transaction>
+    public class VerifyTransactionSign : IPipelineHandler<Transaction.Transaction>
     {
-        public async Task<bool> Handle(Microcoin.Blockchain.Transaction.Transaction transaction)
+        public async Task<bool> Handle(Transaction.Transaction transaction)
         {
             TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
             IReceiverSignOptions receiverSignOptions = TransactionValidator.GetReceiverValidateOptions(transaction);

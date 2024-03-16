@@ -5,10 +5,12 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microcoin", "Microcoin\Microcoin.csproj", "{C135DF9B-A54D-4A7A-8921-923C7C24CDDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{B5454686-6E8F-432A-B71A-F129A435990D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{B5454686-6E8F-432A-B71A-F129A435990D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C135DF9B-A54D-4A7A-8921-923C7C24CDDB} = {C135DF9B-A54D-4A7A-8921-923C7C24CDDB}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeNetTimingStatistics", "NodeNetTimingStatistics\NodeNetTimingStatistics.csproj", "{55E20F58-D693-41A2-8263-A4D8DFC22DC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +26,10 @@ Global
 		{B5454686-6E8F-432A-B71A-F129A435990D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5454686-6E8F-432A-B71A-F129A435990D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5454686-6E8F-432A-B71A-F129A435990D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55E20F58-D693-41A2-8263-A4D8DFC22DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55E20F58-D693-41A2-8263-A4D8DFC22DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55E20F58-D693-41A2-8263-A4D8DFC22DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55E20F58-D693-41A2-8263-A4D8DFC22DC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,10 +1,10 @@
 ﻿using Microcoin.PipelineHandling;
 
-namespace Microcoin.Blockchain.TransactionsPool
+namespace TransactionsPool
 {
-    public class VerifyTransactionFields : IPipelineHandler<Microcoin.Blockchain.Transaction.Transaction>
+    public class VerifyTransactionFields : IPipelineHandler<Transaction.Transaction>
     {
-        public async Task<bool> Handle(Microcoin.Blockchain.Transaction.Transaction transaction)
+        public async Task<bool> Handle(Transaction.Transaction transaction)
         {
             if (transaction.TransferAmount <= 0) // Someone may try to transfer negative or zero count of coins ;) 
                 return false;
